@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                   https://raw.github.com/doctrine/doctrine2/master/doctrine-mapping.xsd">
+    <entity
+            name="App\Notification\Domain\Model\NotificationTemplate"
+            table="notification_templates"
+            repository-class="App\Notification\Infrastructure\Persistence\Doctrine\Repository\DoctrineNotificationTemplateRepository"
+    >
+        <id name="id" type="notification_template_id" column="id" length="36"/>
+        <field name="key" column="template_key" type="notification_template_key" length="255"/>
+        <field name="channel" column="channel" type="notification_channel" length="20"/>
+        <field name="locale" column="locale" type="notification_locale" length="10"/>
+        <field name="subject" column="subject" type="notification_subject" length="255"/>
+        <field name="body" column="body" type="notification_body"/>
+        <field name="isActive" column="is_active" type="bool_vo"/>
+        <field name="createdAt" column="created_at" type="datetime_vo"/>
+        <field name="updatedAt" column="updated_at" type="datetime_vo"/>
+        <unique-constraints>
+            <unique-constraint columns="template_key,channel,locale" name="uniq_notification_templates_key_channel_locale"/>
+        </unique-constraints>
+    </entity>
+</doctrine-mapping>

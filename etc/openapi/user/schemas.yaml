@@ -1,0 +1,137 @@
+components:
+  schemas:
+
+    UserCreateRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        password:
+          type: string
+        username:
+          type: string
+
+      required:
+        - email
+        - password
+
+    SignUpRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        password:
+          type: string
+          minLength: 8
+        username:
+          type: string
+      required:
+        - email
+        - password
+
+    ActivateAccountRequest:
+      type: object
+      properties:
+        token:
+          type: string
+      required:
+        - token
+
+    UserUpdateRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        role:
+          type: integer
+          default: 0
+        active:
+          type: boolean
+          default: true
+        emailValidated:
+          type: boolean
+          default: true
+
+    UserDetailResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+        email:
+          type: string
+        role:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+        active:
+          type: boolean
+          default: true
+        emailValidated:
+          type: boolean
+          default: true
+        createdAt:
+          type: datetime
+        lastLoginAt:
+          type: datetime
+
+    UserItemResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+        email:
+          type: string
+        createdAt:
+          type: datetime
+        lastLoginAt:
+          type: datetime
+
+    UsersResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserItemResponse'
+        size:
+          type: integer
+        total:
+          type: integer
+        page:
+          type: integer
+        last:
+          type: integer
+
+    ChangeUserPasswordRequest:
+      type: object
+      properties:
+        currentPassword:
+          type: string
+          minLength: 8
+          maxLength: 20
+        newPassword:
+          type: string
+          minLength: 8
+          maxLength: 20
+      required:
+        - currentPassword
+        - newPassword

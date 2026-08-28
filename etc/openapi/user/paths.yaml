@@ -1,0 +1,188 @@
+paths:
+
+  /signup:
+    post:
+      summary: Public self-registration
+      description: >
+        Creates a new user account, always inactive and with an unvalidated email.
+        An activation email is sent (when enabled) with a link to POST /users/activate.
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignUpRequest'
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Invalid data
+        '409':
+          description: Email already exists
+        '500':
+          description: Internal server error
+
+  /users/activate:
+    post:
+      summary: Activate a self-registered account
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivateAccountRequest'
+      responses:
+        '200':
+          description: Activated
+        '400':
+          description: Invalid data
+        '404':
+          description: Unknown activation token
+        '410':
+          description: Activation token expired
+        '500':
+          description: Internal server error
+
+  /users:
+    post:
+      summary: Create user (admin only)
+      security:
+        - Bearer: [ ]
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreateRequest'
+      responses:
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden — requires ROLE_ADMIN
+        '500':
+          description: Internal server error
+
+    get:
+      summary: Search users
+      tags:
+        - User
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersResponse'
+        '500':
+          description: Internal server error
+
+  /users/{id}:
+
+    patch:
+      summary: Update user
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        '200':
+          description: Updated
+        '500':
+          description: Internal server error
+
+    delete:
+      summary: Delete user
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      tags:
+        - User
+      responses:
+        '200':
+          description: Deleted
+        '500':
+          description: Internal server error
+
+    get:
+      summary: Get user
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      tags:
+        - User
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersResponse'
+        '500':
+          description: Internal server error
+
+  /users/{id}/change-password:
+    patch:
+      summary: Update user password
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangeUserPasswordRequest'
+      responses:
+        '200':
+          description: Password updated correctly
+        '400':
+          description: Invalid data
+        '401':
+          description: Unauthorized
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error

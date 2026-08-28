@@ -1,0 +1,67 @@
+paths:
+
+  /login:
+
+    post:
+      summary: User authentication
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Success
+        '500':
+          description: Internal server error
+
+  /token-renew:
+
+    put:
+      summary: Renew JWT token
+      security:
+        - Bearer: [ ]
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RenewTokenResponse'
+        '500':
+          description: Internal server error
+
+    delete:
+      summary: Logout
+      security:
+        - Bearer: [ ]
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+      responses:
+        '200':
+          description: Success
+        '500':
+          description: Internal server error

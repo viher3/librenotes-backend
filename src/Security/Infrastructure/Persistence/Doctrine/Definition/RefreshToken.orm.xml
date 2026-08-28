@@ -1,0 +1,26 @@
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                   https://raw.github.com/doctrine/doctrine2/master/doctrine-mapping.xsd">
+    <entity
+            name="App\Security\Domain\Model\RefreshToken"
+            table="refresh_tokens"
+            repository-class="App\Security\Infrastructure\Persistence\Doctrine\Repository\DoctrineRefreshTokenRepository"
+    >
+        <id name="id" type="refresh_token_id" column="id" length="36"/>
+        <field name="userId" column="user_id" type="user_id" length="36"/>
+        <field name="tokenHash" column="token_hash" type="token_hash"/>
+        <field name="jti" column="jti" type="jti" unique="true" />
+        <field name="deviceInfo" column="device_info" type="device_info"/>
+        <field name="createdAt" column="created_at" type="datetime_vo" />
+        <field name="expiresAt" column="expires_at" type="datetime_vo" />
+        <field name="lastUsed" column="last_used" type="datetime_vo" nullable="true" />
+        <field name="revoked" column="revoked" type="bool_vo">
+            <options>
+                <option name="default">0</option>
+            </options>
+        </field>
+        <field name="replacedByJti" column="replaced_by_jti" type="jti" />
+        <field name="ip" column="ip" type="ip_address" />
+    </entity>
+</doctrine-mapping>

@@ -1,0 +1,24 @@
+doctrine:
+  dbal:
+    types:
+
+      user_id: App\User\Infrastructure\Persistence\Doctrine\Type\UserIdType
+      user_email: App\User\Infrastructure\Persistence\Doctrine\Type\UserEmailType
+      username: App\User\Infrastructure\Persistence\Doctrine\Type\UsernameType
+      hashed_password: App\User\Infrastructure\Persistence\Doctrine\Type\HashedPasswordType
+      password_recovery_token: App\User\Infrastructure\Persistence\Doctrine\Type\PasswordRecoveryTokenType
+      activation_token: App\User\Infrastructure\Persistence\Doctrine\Type\ActivationTokenType
+      token_version: App\User\Infrastructure\Persistence\Doctrine\Type\TokenVersionType
+      user_role_id: App\User\Infrastructure\Persistence\Doctrine\Type\UserRoleIdType
+      user_role_name: App\User\Infrastructure\Persistence\Doctrine\Type\UserRoleNameType
+      user_role_assignment_id: App\User\Infrastructure\Persistence\Doctrine\Type\UserRoleAssignmentIdType
+
+  orm:
+    mappings:
+
+      User:
+        is_bundle: false
+        type: xml
+        dir: '%kernel.project_dir%/src/User/Infrastructure/Persistence/Doctrine/Definition'
+        prefix: 'App\User\Domain\Model'
+        alias: User

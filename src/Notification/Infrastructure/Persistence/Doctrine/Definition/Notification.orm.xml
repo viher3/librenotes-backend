@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                   https://raw.github.com/doctrine/doctrine2/master/doctrine-mapping.xsd">
+    <entity
+            name="App\Notification\Domain\Model\Notification"
+            table="notifications"
+            repository-class="App\Notification\Infrastructure\Persistence\Doctrine\Repository\DoctrineNotificationRepository"
+    >
+        <id name="id" type="notification_id" column="id" length="36"/>
+        <field name="channel" column="channel" type="notification_channel" length="20"/>
+        <field name="templateKey" column="template_key" type="notification_template_key" length="255"/>
+        <field name="locale" column="locale" type="notification_locale" length="10"/>
+        <field name="recipient" column="recipient" type="notification_recipient" length="255"/>
+        <field name="recipientId" column="recipient_id" type="notification_recipient_id" length="36" nullable="true"/>
+        <field name="payload" column="payload" type="notification_payload"/>
+        <field name="subject" column="subject" type="notification_subject" length="255" nullable="true"/>
+        <field name="body" column="body" type="notification_body" nullable="true"/>
+        <field name="status" column="status" type="notification_status" length="20"/>
+        <field name="attempts" column="attempts" type="notification_attempts"/>
+        <field name="lastError" column="last_error" type="text" nullable="true"/>
+        <field name="providerMessageId" column="provider_message_id" type="string" length="255" nullable="true"/>
+        <field name="sentAt" column="sent_at" type="datetime_vo" nullable="true"/>
+        <field name="createdAt" column="created_at" type="datetime_vo"/>
+        <field name="updatedAt" column="updated_at" type="datetime_vo"/>
+        <indexes>
+            <index name="idx_notifications_status_channel" columns="status,channel"/>
+            <index name="idx_notifications_recipient_id" columns="recipient_id"/>
+        </indexes>
+    </entity>
+</doctrine-mapping>

@@ -1,0 +1,29 @@
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                   https://raw.github.com/doctrine/doctrine2/master/doctrine-mapping.xsd">
+    <entity
+            name="App\User\Domain\Model\User"
+            table="user"
+            repository-class="App\User\Infrastructure\Persistence\Doctrine\Repository\DoctrineUserRepository"
+    >
+        <id name="id" type="user_id" column="id" length="36"/>
+        <field name="username" column="username" type="username"/>
+        <field name="email" column="email" unique="true" type="user_email"/>
+        <field name="password" column="password" type="hashed_password"/>
+        <field name="active" column="is_active" type="bool_vo"/>
+        <field name="emailValidated" column="is_email_validated" type="bool_vo"/>
+        <field name="passwordRecoveryToken" column="password_recovery_token" type="password_recovery_token" nullable="true" />
+        <field name="passwordRecoveryRequestedAt" column="password_recovery_requested_at" type="datetime_vo" nullable="true" />
+        <field name="activationToken" column="activation_token" type="activation_token" nullable="true" />
+        <field name="activationTokenRequestedAt" column="activation_token_requested_at" type="datetime_vo" nullable="true" />
+        <field name="tokenVersion" column="token_version" type="token_version">
+            <options>
+                <option name="default">1</option>
+            </options>
+        </field>
+        <field name="createdAt" column="created_at" type="datetime_vo" />
+        <field name="lastLoginAt" column="last_login_at" type="datetime_vo" nullable="true" />
+        <field name="deletedAt" column="deleted_at" type="datetime_vo" nullable="true"/>
+    </entity>
+</doctrine-mapping>

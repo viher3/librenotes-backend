@@ -1,0 +1,40 @@
+framework:
+    messenger:
+        transports:
+            sync: 'sync://'
+
+        default_bus: event.bus
+
+        buses:
+
+            transactional_command.bus:
+                middleware:
+                    - doctrine_transaction
+
+            default_command.bus:
+                middleware:
+                    - validation
+
+            query.bus:
+                middleware:
+                    - validation
+
+            event.bus:
+                default_middleware:
+                    enabled: true
+                    allow_no_handlers: false
+                    allow_no_senders: true
+                middleware:
+                    - validation
+
+        routing:
+            # Route your messages to the transports
+            # 'App\Message\YourMessage': async
+
+# when@test:
+#    framework:
+#        messenger:
+#            transports:
+#                # replace with your transport name here (e.g., my_transport: 'in-memory://')
+#                # For more Messenger testing tools, see https://github.com/zenstruck/messenger-test
+#                async: 'in-memory://'

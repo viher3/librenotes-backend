@@ -1,0 +1,19 @@
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                   https://raw.github.com/doctrine/doctrine2/master/doctrine-mapping.xsd">
+    <entity
+        name="App\User\Domain\Model\UserRoleAssignment"
+        table="user_role_assignments"
+        repository-class="App\User\Infrastructure\Persistence\Doctrine\Repository\DoctrineUserRoleAssignmentRepository"
+    >
+        <id name="id" type="user_role_assignment_id" column="id" length="50"/>
+        <field name="userId" column="user_id" type="user_id" length="50"/>
+        <field name="userRoleId" column="user_role_id" type="user_role_id" length="50"/>
+        <field name="assignedAt" column="assigned_at" type="datetime_vo"/>
+        <field name="revokedAt" column="revoked_at" type="datetime_vo" nullable="true"/>
+        <indexes>
+            <index name="idx_user_role" columns="user_id,user_role_id"/>
+        </indexes>
+    </entity>
+</doctrine-mapping>

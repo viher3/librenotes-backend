@@ -1,0 +1,153 @@
+paths:
+  /notifications:
+    get:
+      summary: Search notifications
+      security: [ { Bearer: [] } ]
+      parameters:
+        - name: filters
+          in: query
+          description: 'JSON array of {field, operator, value}, e.g. [{"field":"status","operator":"equals","value":"failed"}]'
+          schema: { $ref: '#/components/schemas/FiltersParameter' }
+        - name: page
+          in: query
+          schema: { $ref: '#/components/schemas/PageParameter' }
+        - name: size
+          in: query
+          schema: { $ref: '#/components/schemas/ItemsPerPageParameter' }
+      tags: [ Notification ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/NotificationSearchResponse' }
+        '500': { description: Internal server error }
+
+  /notifications/{id}:
+    get:
+      summary: Get notification by id
+      security: [ { Bearer: [] } ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      tags: [ Notification ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/NotificationDetailResponse' }
+        '404': { description: Notification not found }
+        '500': { description: Internal server error }
+
+  /notifications/{id}/retry:
+    post:
+      summary: Retry a failed notification
+      description: >
+        Moves a notification back to "pending" and re-dispatches delivery, re-rendering
+        against the template's current content. Only valid from "failed" — retrying a
+        "pending" or "sent" notification returns 409.
+      security: [ { Bearer: [] } ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      tags: [ Notification ]
+      responses:
+        '200': { description: OK }
+        '404': { description: Notification not found }
+        '409': { description: Notification is not in a retryable state }
+        '500': { description: Internal server error }
+
+  /notification-templates:
+    post:
+      summary: Create notification template
+      security: [ { Bearer: [] } ]
+      tags: [ Notification ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NotificationTemplateCreateRequest' }
+      responses:
+        '201': { description: Created }
+        '400': { description: Invalid request body }
+        '409': { description: A template already exists for this key/channel/locale }
+        '422': { description: Invalid channel or key format }
+        '500': { description: Internal server error }
+    get:
+      summary: Search notification templates
+      security: [ { Bearer: [] } ]
+      parameters:
+        - name: filters
+          in: query
+          schema: { $ref: '#/components/schemas/FiltersParameter' }
+        - name: page
+          in: query
+          schema: { $ref: '#/components/schemas/PageParameter' }
+        - name: size
+          in: query
+          schema: { $ref: '#/components/schemas/ItemsPerPageParameter' }
+      tags: [ Notification ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/NotificationTemplateSearchResponse' }
+        '500': { description: Internal server error }
+
+  /notification-templates/{id}:
+    get:
+      summary: Get notification template by id
+      security: [ { Bearer: [] } ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      tags: [ Notification ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/NotificationTemplateDetailResponse' }
+        '404': { description: Notification template not found }
+        '500': { description: Internal server error }
+    patch:
+      summary: Update notification template
+      description: Partial update — only the fields sent are changed.
+      security: [ { Bearer: [] } ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      tags: [ Notification ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NotificationTemplateUpdateRequest' }
+      responses:
+        '200': { description: OK }
+        '400': { description: Invalid request body }
+        '404': { description: Notification template not found }
+        '500': { description: Internal server error }
+    delete:
+      summary: Delete notification template
+      security: [ { Bearer: [] } ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      tags: [ Notification ]
+      responses:
+        '204': { description: No content }
+        '404': { description: Notification template not found }
+        '500': { description: Internal server error }

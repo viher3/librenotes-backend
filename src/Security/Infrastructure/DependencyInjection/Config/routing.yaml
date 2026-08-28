@@ -1,0 +1,14 @@
+authentication:
+  path: /login
+  methods: POST
+  controller: App\Security\Infrastructure\Ui\Controllers\UserAuthenticationController
+
+token_renew:
+  path: /token-renew
+  methods: PUT
+  controller: App\Security\Infrastructure\Ui\Controllers\RenewUserAuthenticationController
+
+logout:
+  path: /token-renew
+  methods: DELETE
+  controller: App\Security\Infrastructure\Ui\Controllers\LogoutController

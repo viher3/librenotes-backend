@@ -1,0 +1,25 @@
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                   https://raw.github.com/doctrine/doctrine2/master/doctrine-mapping.xsd">
+    <entity
+            name="App\Configuration\Domain\Model\ConfigurationHistory"
+            table="configuration_history"
+            repository-class="App\Configuration\Infrastructure\Persistence\Doctrine\Repository\DoctrineConfigurationHistoryRepository"
+    >
+        <id name="id" type="configuration_history_id" column="id" length="36"/>
+        <field name="configurationId" column="configuration_id" type="configuration_id" length="36" nullable="true"/>
+        <field name="configurationKey" column="configuration_key" type="configuration_key"/>
+        <field name="action" column="action" type="configuration_history_action" length="20"/>
+        <field name="previousValue" column="previous_value" type="configuration_value" nullable="true"/>
+        <field name="previousValueKeyVersion" column="previous_value_key_version" type="smallint" nullable="true"/>
+        <field name="newValue" column="new_value" type="configuration_value" nullable="true"/>
+        <field name="newValueKeyVersion" column="new_value_key_version" type="smallint" nullable="true"/>
+        <field name="changedBy" column="changed_by" type="configuration_changed_by" length="36"/>
+        <field name="changedAt" column="changed_at" type="datetime_vo"/>
+        <indexes>
+            <index name="idx_configuration_history_key" columns="configuration_key"/>
+            <index name="idx_configuration_history_configuration_id" columns="configuration_id"/>
+        </indexes>
+    </entity>
+</doctrine-mapping>

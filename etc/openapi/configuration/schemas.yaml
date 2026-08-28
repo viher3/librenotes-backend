@@ -1,0 +1,121 @@
+components:
+  schemas:
+
+    ConfigurationCreateRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        key:
+          type: string
+          description: Dot-namespaced, e.g. mail.sender_name. Immutable once created.
+        value:
+          type: string
+        type:
+          type: string
+          enum: [string, integer, boolean, json]
+        description:
+          type: string
+          nullable: true
+        is_sensitive:
+          type: boolean
+          default: false
+          description: Encrypted at rest and never returned in plaintext once set.
+      required:
+        - key
+        - value
+        - type
+
+    ConfigurationUpdateRequest:
+      type: object
+      description: All fields optional — only the ones sent are changed.
+      properties:
+        value:
+          type: string
+        type:
+          type: string
+          enum: [string, integer, boolean, json]
+        description:
+          type: string
+          nullable: true
+        is_sensitive:
+          type: boolean
+
+    ConfigurationDetailResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        key:
+          type: string
+        type:
+          type: string
+          enum: [string, integer, boolean, json]
+        description:
+          type: string
+          nullable: true
+        is_sensitive:
+          type: boolean
+        value:
+          type: string
+          nullable: true
+          description: Always null when is_sensitive is true — this endpoint never reveals a sensitive value.
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ConfigurationSearchResponse:
+      type: object
+      properties:
+        meta:
+          $ref: '#/components/schemas/ConfigurationPageMeta'
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConfigurationDetailResponse'
+
+    ConfigurationHistoryEntry:
+      type: object
+      properties:
+        action:
+          type: string
+          enum: [created, updated, deleted]
+        previous_value:
+          type: string
+          nullable: true
+        new_value:
+          type: string
+          nullable: true
+        changed_by:
+          type: string
+          format: uuid
+        changed_at:
+          type: string
+          format: date-time
+
+    ConfigurationHistoryResponse:
+      type: object
+      properties:
+        meta:
+          $ref: '#/components/schemas/ConfigurationPageMeta'
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConfigurationHistoryEntry'
+
+    ConfigurationPageMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+        size:
+          type: integer
+        total:
+          type: integer
+        last_page:
+          type: integer

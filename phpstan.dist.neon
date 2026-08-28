@@ -1,0 +1,12 @@
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    level: 6
+    tmpDir: var/cache/phpstan
+    paths:
+        - src
+    symfony:
+        containerXmlPath: var/cache/localdocker/App_KernelLocaldockerDebugContainer.xml
+    doctrine:
+        objectManagerLoader: etc/phpstan/object-manager.php

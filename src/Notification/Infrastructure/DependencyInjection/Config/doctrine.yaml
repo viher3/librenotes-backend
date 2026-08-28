@@ -1,0 +1,26 @@
+doctrine:
+  dbal:
+    types:
+
+      notification_id: App\Notification\Infrastructure\Persistence\Doctrine\Type\NotificationIdType
+      notification_template_id: App\Notification\Infrastructure\Persistence\Doctrine\Type\NotificationTemplateIdType
+      notification_channel: App\Notification\Infrastructure\Persistence\Doctrine\Type\NotificationChannelType
+      notification_template_key: App\Notification\Infrastructure\Persistence\Doctrine\Type\NotificationTemplateKeyType
+      notification_locale: App\Notification\Infrastructure\Persistence\Doctrine\Type\NotificationLocaleType
+      notification_recipient: App\Notification\Infrastructure\Persistence\Doctrine\Type\NotificationRecipientType
+      notification_recipient_id: App\Notification\Infrastructure\Persistence\Doctrine\Type\NotificationRecipientIdType
+      notification_payload: App\Notification\Infrastructure\Persistence\Doctrine\Type\NotificationPayloadType
+      notification_subject: App\Notification\Infrastructure\Persistence\Doctrine\Type\NotificationSubjectType
+      notification_body: App\Notification\Infrastructure\Persistence\Doctrine\Type\NotificationBodyType
+      notification_status: App\Notification\Infrastructure\Persistence\Doctrine\Type\NotificationStatusType
+      notification_attempts: App\Notification\Infrastructure\Persistence\Doctrine\Type\NotificationAttemptsType
+
+  orm:
+    mappings:
+
+      Notification:
+        is_bundle: false
+        type: xml
+        dir: '%kernel.project_dir%/src/Notification/Infrastructure/Persistence/Doctrine/Definition'
+        prefix: 'App\Notification\Domain\Model'
+        alias: Notification

@@ -1,0 +1,20 @@
+# API routing
+app.swagger_ui:
+  path: /api/docs
+  methods: GET
+  defaults: { _controller: nelmio_api_doc.controller.swagger_ui }
+
+shared:
+  resource: "../src/Shared/Infrastructure/DependencyInjection/Config/routing.yaml"
+
+users:
+  resource: "../src/User/Infrastructure/DependencyInjection/Config/routing.yaml"
+
+security:
+  resource: "../src/Security/Infrastructure/DependencyInjection/Config/routing.yaml"
+
+configuration:
+  resource: "../src/Configuration/Infrastructure/DependencyInjection/Config/routing.yaml"
+
+notification:
+  resource: "../src/Notification/Infrastructure/DependencyInjection/Config/routing.yaml"

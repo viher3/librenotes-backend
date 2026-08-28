@@ -1,0 +1,39 @@
+create_user:
+  path: /users
+  methods: POST
+  controller: App\User\Infrastructure\Ui\Controllers\CreateUserController
+
+signup:
+  path: /signup
+  methods: POST
+  controller: App\User\Infrastructure\Ui\Controllers\SignUpController
+
+activate_account:
+  path: /users/activate
+  methods: POST
+  controller: App\User\Infrastructure\Ui\Controllers\ActivateAccountController
+
+search_user:
+  path: /users
+  methods: GET
+  controller: App\User\Infrastructure\Ui\Controllers\SearchUserController
+
+update_user:
+  path: /users/{id}
+  methods: PATCH
+  controller: App\User\Infrastructure\Ui\Controllers\UpdateUserController
+
+change_password_user:
+  path: /users/{id}/change-password
+  methods: PATCH
+  controller: App\User\Infrastructure\Ui\Controllers\ChangeUserPasswordController
+
+delete_user:
+  path: /users/{id}
+  methods: DELETE
+  controller: App\User\Infrastructure\Ui\Controllers\DeleteUserController
+
+detail_user:
+  path: /users/{id}
+  methods: GET
+  controller: App\User\Infrastructure\Ui\Controllers\DetailUserController

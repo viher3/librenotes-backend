@@ -1,0 +1,39 @@
+search_notifications:
+  path: /notifications
+  methods: GET
+  controller: App\Notification\Infrastructure\Ui\Controllers\NotificationSearchController
+
+detail_notification:
+  path: /notifications/{id}
+  methods: GET
+  controller: App\Notification\Infrastructure\Ui\Controllers\NotificationDetailController
+
+retry_notification:
+  path: /notifications/{id}/retry
+  methods: POST
+  controller: App\Notification\Infrastructure\Ui\Controllers\RetryNotificationController
+
+search_notification_templates:
+  path: /notification-templates
+  methods: GET
+  controller: App\Notification\Infrastructure\Ui\Controllers\NotificationTemplateSearchController
+
+create_notification_template:
+  path: /notification-templates
+  methods: POST
+  controller: App\Notification\Infrastructure\Ui\Controllers\CreateNotificationTemplateController
+
+detail_notification_template:
+  path: /notification-templates/{id}
+  methods: GET
+  controller: App\Notification\Infrastructure\Ui\Controllers\NotificationTemplateDetailController
+
+update_notification_template:
+  path: /notification-templates/{id}
+  methods: PATCH
+  controller: App\Notification\Infrastructure\Ui\Controllers\UpdateNotificationTemplateController
+
+delete_notification_template:
+  path: /notification-templates/{id}
+  methods: DELETE
+  controller: App\Notification\Infrastructure\Ui\Controllers\DeleteNotificationTemplateController

@@ -1,0 +1,29 @@
+openapi: "3.0.0"
+info:
+  version: 0.0.2
+  title: Symfony DDD Core
+servers:
+  - url: http://localhost:8000/api/
+
+security:
+  - apiKeyAuth: []
+
+components:
+  schemas:
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+
+  securitySchemes:
+    Bearer:
+      type: apiKey
+      in: header
+      name: Authorization

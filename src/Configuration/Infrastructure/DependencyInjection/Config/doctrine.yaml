@@ -1,0 +1,22 @@
+doctrine:
+  dbal:
+    types:
+
+      configuration_id: App\Configuration\Infrastructure\Persistence\Doctrine\Type\ConfigurationIdType
+      configuration_key: App\Configuration\Infrastructure\Persistence\Doctrine\Type\ConfigurationKeyType
+      configuration_value: App\Configuration\Infrastructure\Persistence\Doctrine\Type\ConfigurationValueType
+      configuration_type: App\Configuration\Infrastructure\Persistence\Doctrine\Type\ConfigurationTypeType
+      configuration_description: App\Configuration\Infrastructure\Persistence\Doctrine\Type\ConfigurationDescriptionType
+      configuration_history_id: App\Configuration\Infrastructure\Persistence\Doctrine\Type\ConfigurationHistoryIdType
+      configuration_history_action: App\Configuration\Infrastructure\Persistence\Doctrine\Type\ConfigurationHistoryActionType
+      configuration_changed_by: App\Configuration\Infrastructure\Persistence\Doctrine\Type\ConfigurationChangedByType
+
+  orm:
+    mappings:
+
+      Configuration:
+        is_bundle: false
+        type: xml
+        dir: '%kernel.project_dir%/src/Configuration/Infrastructure/Persistence/Doctrine/Definition'
+        prefix: 'App\Configuration\Domain\Model'
+        alias: Configuration

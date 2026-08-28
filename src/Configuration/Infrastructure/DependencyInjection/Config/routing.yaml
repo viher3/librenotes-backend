@@ -1,0 +1,29 @@
+create_configuration:
+  path: /configurations
+  methods: POST
+  controller: App\Configuration\Infrastructure\Ui\Controllers\CreateConfigurationController
+
+search_configuration:
+  path: /configurations
+  methods: GET
+  controller: App\Configuration\Infrastructure\Ui\Controllers\ConfigurationSearchController
+
+update_configuration:
+  path: /configurations/{key}
+  methods: PATCH
+  controller: App\Configuration\Infrastructure\Ui\Controllers\UpdateConfigurationController
+
+delete_configuration:
+  path: /configurations/{key}
+  methods: DELETE
+  controller: App\Configuration\Infrastructure\Ui\Controllers\DeleteConfigurationController
+
+detail_configuration:
+  path: /configurations/{key}
+  methods: GET
+  controller: App\Configuration\Infrastructure\Ui\Controllers\ConfigurationDetailController
+
+history_configuration:
+  path: /configurations/{key}/history
+  methods: GET
+  controller: App\Configuration\Infrastructure\Ui\Controllers\ConfigurationHistoryController

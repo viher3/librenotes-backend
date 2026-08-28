@@ -1,0 +1,52 @@
+services:
+
+  symfony-ddd-core-mysql:
+    container_name: symfony-ddd-core-mysql
+    image: 'mysql:8.0'
+    working_dir: /app
+    volumes:
+      - ./etc/docker/mysql/scripts:/docker-entrypoint-initdb.d
+      - sqldata:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=symfony-ddd-core
+      - MYSQL_USER=core
+      - MYSQL_PASSWORD=password
+    ports:
+      - '3306:3306'
+
+  symfony-ddd-core-api-server:
+    container_name: symfony-ddd-core-api-nginx
+    build:
+      context: .
+      dockerfile: ./etc/docker/nginx/Dockerfile
+    ports:
+      - "80:80"  # Map port 80 in the container to port 80 on the host
+    volumes:
+      - ./public:/app/public
+    depends_on:
+      - symfony-ddd-core-api-php
+
+  symfony-ddd-core-api-php:
+    container_name: symfony-ddd-core-api-php
+    build:
+      context: .
+      dockerfile: ./etc/docker/php-fpm/Dockerfile
+    volumes:
+      - .:/app
+      - ./docker/php-fpm/ssh:/root/.ssh
+    #    ports:
+    #      - "9000:900"  # Expose port 9003 for Xdebug
+    expose:
+      - 9003
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - symfony-ddd-core-mysql
+
+volumes:
+  sqldata:
+
+networks:
+  symfony-ddd-core-net:
+    name: symfony-ddd-core-net

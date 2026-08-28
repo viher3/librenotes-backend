@@ -1,0 +1,7 @@
+services:
+
+  symfony-ddd-core-api-php:
+    volumes:
+      - .:/app
+      - ./etc/docker/php-fpm/conf/xdebug-off.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+      - ./etc/docker/php-fpm/conf/error_reporting.ini:/usr/local/etc/php/conf.d/error_reporting.ini

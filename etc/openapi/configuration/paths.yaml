@@ -1,0 +1,167 @@
+paths:
+
+  /configurations:
+
+    post:
+      summary: Create configuration
+      security:
+        - Bearer: [ ]
+      tags:
+        - Configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigurationCreateRequest'
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Invalid request body
+        '409':
+          description: Key already exists
+        '422':
+          description: Value does not match the declared type
+        '500':
+          description: Internal server error
+
+    get:
+      summary: Search configurations
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: filters
+          in: query
+          description: 'JSON array of {field, operator, value}, e.g. [{"field":"key","operator":"like","value":"mail."}]'
+          schema:
+            $ref: '#/components/schemas/FiltersParameter'
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageParameter'
+        - name: size
+          in: query
+          schema:
+            $ref: '#/components/schemas/ItemsPerPageParameter'
+      tags:
+        - Configuration
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigurationSearchResponse'
+        '500':
+          description: Internal server error
+
+  /configurations/{key}:
+
+    get:
+      summary: Get configuration
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+      tags:
+        - Configuration
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigurationDetailResponse'
+        '404':
+          description: Configuration not found
+        '500':
+          description: Internal server error
+
+    patch:
+      summary: Update configuration value
+      description: Partial update — only the fields sent are changed. The key itself is immutable.
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+      tags:
+        - Configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigurationUpdateRequest'
+      responses:
+        '200':
+          description: Updated
+        '404':
+          description: Configuration not found
+        '422':
+          description: Value does not match the declared type
+        '500':
+          description: Internal server error
+
+    delete:
+      summary: Delete configuration
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+      tags:
+        - Configuration
+      responses:
+        '204':
+          description: Deleted
+        '404':
+          description: Configuration not found
+        '500':
+          description: Internal server error
+
+  /configurations/{key}/history:
+
+    get:
+      summary: Get configuration change history
+      description: >
+        Returns an empty page for an unknown or already-deleted key rather than 404 —
+        the ledger is meant to stay readable after the live configuration is gone.
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageParameter'
+        - name: size
+          in: query
+          schema:
+            $ref: '#/components/schemas/ItemsPerPageParameter'
+      tags:
+        - Configuration
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigurationHistoryResponse'
+        '500':
+          description: Internal server error

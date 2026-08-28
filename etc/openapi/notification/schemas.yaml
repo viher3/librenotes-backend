@@ -1,0 +1,79 @@
+components:
+  schemas:
+    NotificationDetailResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        channel: { type: string, enum: [email] }
+        template_key: { type: string }
+        locale: { type: string }
+        recipient: { type: string }
+        recipient_id: { type: string, format: uuid, nullable: true }
+        payload: { type: object }
+        subject: { type: string, nullable: true }
+        status: { type: string, enum: [pending, sent, failed] }
+        attempts: { type: integer }
+        last_error: { type: string, nullable: true }
+        provider_message_id: { type: string, nullable: true }
+        sent_at: { type: string, format: date-time, nullable: true }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    NotificationSearchResponse:
+      type: object
+      properties:
+        meta: { $ref: '#/components/schemas/NotificationPageMeta' }
+        data: { type: array, items: { $ref: '#/components/schemas/NotificationDetailResponse' } }
+
+    NotificationPageMeta:
+      type: object
+      properties: { page: { type: integer }, size: { type: integer }, total: { type: integer }, last_page: { type: integer } }
+
+    NotificationTemplateCreateRequest:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        key:
+          type: string
+          description: Dot-namespaced, e.g. user.welcome. Together with channel and locale, must be unique.
+        channel: { type: string, enum: [email] }
+        locale:
+          type: string
+          description: 'e.g. en, es, en_US. Falls back to "en" at delivery time when no exact-locale template exists.'
+        subject:
+          type: string
+          description: Sandboxed Twig source (if/for only, a short filter allowlist, no method/property access).
+        body:
+          type: string
+          description: Sandboxed Twig source, same restrictions as subject.
+        is_active:
+          type: boolean
+          default: true
+      required: [key, channel, locale, subject, body]
+
+    NotificationTemplateUpdateRequest:
+      type: object
+      description: All fields optional — only the ones sent are changed. key/channel/locale are immutable once created.
+      properties:
+        subject: { type: string }
+        body: { type: string }
+        is_active: { type: boolean }
+
+    NotificationTemplateDetailResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        key: { type: string }
+        channel: { type: string, enum: [email] }
+        locale: { type: string }
+        subject: { type: string }
+        body: { type: string }
+        is_active: { type: boolean }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    NotificationTemplateSearchResponse:
+      type: object
+      properties:
+        meta: { $ref: '#/components/schemas/NotificationPageMeta' }
+        data: { type: array, items: { $ref: '#/components/schemas/NotificationTemplateDetailResponse' } }

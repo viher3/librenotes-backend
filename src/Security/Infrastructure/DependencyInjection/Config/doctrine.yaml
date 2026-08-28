@@ -1,0 +1,19 @@
+doctrine:
+  dbal:
+    types:
+
+      refresh_token_id: App\Security\Infrastructure\Persistence\Doctrine\Type\RefreshTokenIdType
+      token_hash: App\Security\Infrastructure\Persistence\Doctrine\Type\TokenHashType
+      jti: App\Security\Infrastructure\Persistence\Doctrine\Type\JtiType
+      ip_address: App\Security\Infrastructure\Persistence\Doctrine\Type\IpAddressType
+      device_info: App\Security\Infrastructure\Persistence\Doctrine\Type\DeviceInfoType
+
+  orm:
+    mappings:
+
+      Security:
+        is_bundle: false
+        type: xml
+        dir: '%kernel.project_dir%/src/Security/Infrastructure/Persistence/Doctrine/Definition'
+        prefix: 'App\Security\Domain\Model'
+        alias: User

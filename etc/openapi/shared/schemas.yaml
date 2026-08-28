@@ -1,0 +1,121 @@
+components:
+  schemas:
+    ResponseOk:
+      type: object
+      properties:
+        _result: {}
+        _info:
+          $ref: '#/components/schemas/Info'
+        _error:
+          type: array
+          items: []
+          example: []
+    ResponseNotFound:
+      type: object
+      properties:
+        _result:
+          type: array
+          items: []
+          example: []
+        _info:
+          $ref: '#/components/schemas/Info'
+        _error:
+          $ref: '#/components/schemas/ErrorNotFound'
+    ResponseUnprocessableContent:
+      type: object
+      properties:
+        _result:
+          type: array
+          items: []
+          example: []
+        _info:
+          $ref: '#/components/schemas/Info'
+        _error:
+          $ref: '#/components/schemas/ErrorUnprocessableContent'
+    Info:
+      type: object
+      properties:
+        host:
+          type: string
+        uri:
+          type: string
+        method:
+          type: string
+        params:
+          type: array
+          items: {}
+        time:
+          type: number
+        status:
+          type: integer
+    Clock:
+      type: object
+      properties:
+        date:
+          type: string
+        timezone_type:
+          type: integer
+        timezone:
+          type: string
+    ErrorNotFound:
+      type: object
+      properties:
+        code:
+          type: string
+        details:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+        status_code:
+          type: integer
+          example: 404
+        message:
+          type: string
+        reference:
+          type: string
+        action:
+          type: string
+    ErrorUnprocessableContent:
+      type: object
+      properties:
+        code:
+          type: string
+        details:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+        status_code:
+          type: integer
+          example: 422
+        message:
+          type: string
+        reference:
+          type: string
+        action:
+          type: string
+
+    FiltersParameter:
+      type: string
+      example: '[{"field":"name","operator":"like","value":"Digi"}]'
+
+    PageParameter:
+      type: integer
+      example: 1
+
+    ItemsPerPageParameter:
+      type: integer
+      example: 12
+
+    OrderByParameter:
+      type: string
+      example: ''
+
+    OrderDirection:
+      type: string
+      example: ''
