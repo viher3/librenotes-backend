@@ -1,0 +1,51 @@
+paths:
+
+  /search:
+
+    get:
+      summary: Search notes, folders and attachments
+      description: >
+        Full-text search across the Notes module. Notes are matched by title and
+        content (MySQL FULLTEXT, ranked by relevance); folders and attachments are
+        matched by name (substring match). Results are grouped by type. When `type`
+        narrows the search to a single type, that group is paginated with
+        `page`/`size`; otherwise each group returns up to `size` results without
+        cross-type pagination.
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Search term, minimum 2 characters.
+          schema:
+            type: string
+            minLength: 2
+        - name: type
+          in: query
+          required: false
+          description: Comma-separated subset of note,folder,attachment. Defaults to all three.
+          schema:
+            type: string
+            example: note,folder
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageParameter'
+        - name: size
+          in: query
+          schema:
+            $ref: '#/components/schemas/ItemsPerPageParameter'
+      tags:
+        - Notes
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotesSearchResponse'
+        '400':
+          description: Invalid or missing search term
+        '401':
+          description: Unauthenticated

@@ -219,4 +219,13 @@ abstract class DoctrineRepository extends ServiceEntityRepository
         $qb->select('count(1) as total');
         return (int) $qb->getQuery()->getSingleScalarResult();
     }
+
+    /**
+     * Escapes a user-supplied term for safe use inside a LIKE '%...%' pattern,
+     * so literal '%'/'_'/'\' in the search term aren't treated as wildcards.
+     */
+    protected static function escapeLikeTerm(string $term): string
+    {
+        return addcslashes($term, '\\%_');
+    }
 }

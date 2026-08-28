@@ -1,0 +1,84 @@
+components:
+  schemas:
+
+    NotesSearchNoteItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        folder_id:
+          type: string
+          format: uuid
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+
+    NotesSearchFolderItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        parent_folder_id:
+          type: string
+          format: uuid
+          nullable: true
+
+    NotesSearchAttachmentItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        file_name:
+          type: string
+        mime_type:
+          type: string
+        folder_id:
+          type: string
+          format: uuid
+
+    NotesSearchResponse:
+      type: object
+      properties:
+        meta:
+          type: object
+          properties:
+            query:
+              type: string
+        data:
+          type: object
+          properties:
+            notes:
+              type: object
+              properties:
+                total:
+                  type: integer
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/NotesSearchNoteItem'
+            folders:
+              type: object
+              properties:
+                total:
+                  type: integer
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/NotesSearchFolderItem'
+            attachments:
+              type: object
+              properties:
+                total:
+                  type: integer
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/NotesSearchAttachmentItem'

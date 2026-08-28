@@ -1,7 +1,7 @@
 .PHONY: help
 
 DOCKER_CLI = docker compose exec symfony-ddd-core-api-php
-DOCKER_XDEBUG_CLI = docker exec -it symfony-ddd-core-api-php /bin/bash -c 'XDEBUG_TRIGGER=1 && export PHP_IDE_CONFIG="serverName=host.docker.internal" && bin/console $(command)'
+DOCKER_XDEBUG_CLI = docker exec -it librenotes-backend-api-php /bin/bash -c 'XDEBUG_TRIGGER=1 && export PHP_IDE_CONFIG="serverName=host.docker.internal" && bin/console $(command)'
 
 help:
 	@echo "########################"

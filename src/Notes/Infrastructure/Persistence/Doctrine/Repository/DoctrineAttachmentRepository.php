@@ -61,6 +61,34 @@ final class DoctrineAttachmentRepository extends DoctrineRepository implements A
             ->getResult();
     }
 
+    public function searchByTerm(string $term, OwnerId $ownerId, int $page, int $perPage): array
+    {
+        return $this->searchByTermQueryBuilder($term, $ownerId)
+            ->setFirstResult(($page - 1) * $perPage)
+            ->setMaxResults($perPage)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function searchByTermCount(string $term, OwnerId $ownerId): int
+    {
+        return (int) $this->searchByTermQueryBuilder($term, $ownerId)
+            ->select('COUNT(a.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    private function searchByTermQueryBuilder(string $term, OwnerId $ownerId): QueryBuilder
+    {
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.ownerId = :ownerId')
+            ->andWhere('a.deletedAt IS NULL')
+            ->andWhere('a.fileName LIKE :term')
+            ->setParameter('ownerId', $ownerId->value())
+            ->setParameter('term', '%' . self::escapeLikeTerm($term) . '%')
+            ->orderBy('a.fileName', 'asc');
+    }
+
     private function byFolderQueryBuilder(FolderId $folderId, OwnerId $ownerId): QueryBuilder
     {
         return $this->createQueryBuilder('a')
