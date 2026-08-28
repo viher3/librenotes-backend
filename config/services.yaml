@@ -78,3 +78,7 @@ services:
     App\User\Infrastructure\Notifier\BusUserNotifier:
         arguments:
             $frontendUrl: '%app.frontend_url%'
+
+    App\Notes\Infrastructure\Storage\LocalFileStorage:
+        arguments:
+            $storageDir: '%kernel.project_dir%/var/storage/attachments'

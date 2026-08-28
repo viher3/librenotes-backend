@@ -1,0 +1,22 @@
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                   https://raw.github.com/doctrine/doctrine2/master/doctrine-mapping.xsd">
+    <entity
+            name="App\Notes\Domain\Model\Attachment"
+            table="attachment"
+            repository-class="App\Notes\Infrastructure\Persistence\Doctrine\Repository\DoctrineAttachmentRepository"
+    >
+        <id name="id" type="attachment_id" column="id" length="36"/>
+        <field name="folderId" column="folder_id" type="folder_id" length="36"/>
+        <field name="ownerId" column="owner_id" type="notes_owner_id" length="36"/>
+        <field name="fileName" column="file_name" type="attachment_file_name"/>
+        <field name="mimeType" column="mime_type" type="attachment_mime_type"/>
+        <field name="sizeBytes" column="size_bytes" type="attachment_size_bytes"/>
+        <field name="storageKey" column="storage_key" type="attachment_storage_key" unique="true"/>
+        <field name="createdAt" column="created_at" type="datetime_vo"/>
+        <indexes>
+            <index name="idx_attachment_owner_folder" columns="owner_id,folder_id"/>
+        </indexes>
+    </entity>
+</doctrine-mapping>

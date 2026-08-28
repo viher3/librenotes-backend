@@ -1,0 +1,64 @@
+create_folder:
+  path: /folders
+  methods: POST
+  controller: App\Notes\Infrastructure\Ui\Controllers\CreateFolderController
+
+folder_contents:
+  path: /folders/contents
+  methods: GET
+  controller: App\Notes\Infrastructure\Ui\Controllers\FolderContentsController
+
+rename_folder:
+  path: /folders/{id}
+  methods: PATCH
+  controller: App\Notes\Infrastructure\Ui\Controllers\RenameFolderController
+
+move_folder:
+  path: /folders/{id}/move
+  methods: PATCH
+  controller: App\Notes\Infrastructure\Ui\Controllers\MoveFolderController
+
+delete_folder:
+  path: /folders/{id}
+  methods: DELETE
+  controller: App\Notes\Infrastructure\Ui\Controllers\DeleteFolderController
+
+upload_attachment:
+  path: /folders/{folderId}/attachments
+  methods: POST
+  controller: App\Notes\Infrastructure\Ui\Controllers\UploadAttachmentController
+
+create_note:
+  path: /notes
+  methods: POST
+  controller: App\Notes\Infrastructure\Ui\Controllers\CreateNoteController
+
+update_note:
+  path: /notes/{id}
+  methods: PATCH
+  controller: App\Notes\Infrastructure\Ui\Controllers\UpdateNoteController
+
+move_note:
+  path: /notes/{id}/move
+  methods: PATCH
+  controller: App\Notes\Infrastructure\Ui\Controllers\MoveNoteController
+
+delete_note:
+  path: /notes/{id}
+  methods: DELETE
+  controller: App\Notes\Infrastructure\Ui\Controllers\DeleteNoteController
+
+note_detail:
+  path: /notes/{id}
+  methods: GET
+  controller: App\Notes\Infrastructure\Ui\Controllers\NoteDetailController
+
+delete_attachment:
+  path: /attachments/{id}
+  methods: DELETE
+  controller: App\Notes\Infrastructure\Ui\Controllers\DeleteAttachmentController
+
+attachment_detail:
+  path: /attachments/{id}
+  methods: GET
+  controller: App\Notes\Infrastructure\Ui\Controllers\AttachmentDetailController

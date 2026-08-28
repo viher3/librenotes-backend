@@ -1,0 +1,25 @@
+doctrine:
+  dbal:
+    types:
+
+      folder_id: App\Notes\Infrastructure\Persistence\Doctrine\Type\FolderIdType
+      folder_name: App\Notes\Infrastructure\Persistence\Doctrine\Type\FolderNameType
+      note_id: App\Notes\Infrastructure\Persistence\Doctrine\Type\NoteIdType
+      note_title: App\Notes\Infrastructure\Persistence\Doctrine\Type\NoteTitleType
+      note_content: App\Notes\Infrastructure\Persistence\Doctrine\Type\NoteContentType
+      attachment_id: App\Notes\Infrastructure\Persistence\Doctrine\Type\AttachmentIdType
+      attachment_file_name: App\Notes\Infrastructure\Persistence\Doctrine\Type\FileNameType
+      attachment_mime_type: App\Notes\Infrastructure\Persistence\Doctrine\Type\MimeTypeType
+      attachment_size_bytes: App\Notes\Infrastructure\Persistence\Doctrine\Type\FileSizeBytesType
+      attachment_storage_key: App\Notes\Infrastructure\Persistence\Doctrine\Type\StorageKeyType
+      notes_owner_id: App\Notes\Infrastructure\Persistence\Doctrine\Type\NotesOwnerIdType
+
+  orm:
+    mappings:
+
+      Notes:
+        is_bundle: false
+        type: xml
+        dir: '%kernel.project_dir%/src/Notes/Infrastructure/Persistence/Doctrine/Definition'
+        prefix: 'App\Notes\Domain\Model'
+        alias: Notes

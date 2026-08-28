@@ -3,3 +3,4 @@ imports:
   - { resource: "../src/User/Infrastructure/DependencyInjection/Config/module.yaml" }
   - { resource: "../src/Configuration/Infrastructure/DependencyInjection/Config/module.yaml" }
   - { resource: "../src/Notification/Infrastructure/DependencyInjection/Config/module.yaml" }
+  - { resource: "../src/Notes/Infrastructure/DependencyInjection/Config/module.yaml" }

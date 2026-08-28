@@ -601,6 +601,120 @@ parameters:
 			path: src/Core/Infrastructure/Ui/Controllers/ApiController.php
 
 		-
+			message: '#^Method App\\Notes\\Application\\AttachmentDetail\\AttachmentDetailResponse\:\:getResult\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Notes/Application/AttachmentDetail/AttachmentDetailResponse.php
+
+		-
+			message: '#^Method App\\Notes\\Application\\FolderContents\\FolderContentsResponse\:\:getResult\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Notes/Application/FolderContents/FolderContentsResponse.php
+
+		-
+			message: '#^Method App\\Notes\\Application\\NoteDetail\\NoteDetailResponse\:\:getResult\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Notes/Application/NoteDetail/NoteDetailResponse.php
+
+		-
+			message: '#^Method App\\Notes\\Application\\UpdateNote\\UpdateNoteCommand\:\:__construct\(\) has parameter \$fields with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Notes/Application/UpdateNote/UpdateNoteCommand.php
+
+		-
+			message: '#^Method App\\Notes\\Domain\\Exception\\FolderCycleDetected\:\:params\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Notes/Domain/Exception/FolderCycleDetected.php
+
+		-
+			message: '#^Method App\\Notes\\Domain\\Model\\Note\:\:update\(\) has parameter \$fields with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Notes/Domain/Model/Note.php
+
+		-
+			message: '#^Method App\\Notes\\Infrastructure\\Ui\\Controllers\\AttachmentDetailController\:\:exceptions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Notes/Infrastructure/Ui/Controllers/AttachmentDetailController.php
+
+		-
+			message: '#^Method App\\Notes\\Infrastructure\\Ui\\Controllers\\CreateFolderController\:\:exceptions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Notes/Infrastructure/Ui/Controllers/CreateFolderController.php
+
+		-
+			message: '#^Method App\\Notes\\Infrastructure\\Ui\\Controllers\\CreateNoteController\:\:exceptions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Notes/Infrastructure/Ui/Controllers/CreateNoteController.php
+
+		-
+			message: '#^Method App\\Notes\\Infrastructure\\Ui\\Controllers\\DeleteAttachmentController\:\:exceptions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Notes/Infrastructure/Ui/Controllers/DeleteAttachmentController.php
+
+		-
+			message: '#^Method App\\Notes\\Infrastructure\\Ui\\Controllers\\DeleteFolderController\:\:exceptions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Notes/Infrastructure/Ui/Controllers/DeleteFolderController.php
+
+		-
+			message: '#^Method App\\Notes\\Infrastructure\\Ui\\Controllers\\DeleteNoteController\:\:exceptions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Notes/Infrastructure/Ui/Controllers/DeleteNoteController.php
+
+		-
+			message: '#^Method App\\Notes\\Infrastructure\\Ui\\Controllers\\FolderContentsController\:\:exceptions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Notes/Infrastructure/Ui/Controllers/FolderContentsController.php
+
+		-
+			message: '#^Method App\\Notes\\Infrastructure\\Ui\\Controllers\\MoveFolderController\:\:exceptions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Notes/Infrastructure/Ui/Controllers/MoveFolderController.php
+
+		-
+			message: '#^Method App\\Notes\\Infrastructure\\Ui\\Controllers\\MoveNoteController\:\:exceptions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Notes/Infrastructure/Ui/Controllers/MoveNoteController.php
+
+		-
+			message: '#^Method App\\Notes\\Infrastructure\\Ui\\Controllers\\NoteDetailController\:\:exceptions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Notes/Infrastructure/Ui/Controllers/NoteDetailController.php
+
+		-
+			message: '#^Method App\\Notes\\Infrastructure\\Ui\\Controllers\\RenameFolderController\:\:exceptions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Notes/Infrastructure/Ui/Controllers/RenameFolderController.php
+
+		-
+			message: '#^Method App\\Notes\\Infrastructure\\Ui\\Controllers\\UpdateNoteController\:\:exceptions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Notes/Infrastructure/Ui/Controllers/UpdateNoteController.php
+
+		-
+			message: '#^Method App\\Notes\\Infrastructure\\Ui\\Controllers\\UploadAttachmentController\:\:exceptions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Notes/Infrastructure/Ui/Controllers/UploadAttachmentController.php
+
+		-
 			message: '#^Method App\\Security\\Application\\RenewUserAuthentication\\RenewUserAuthenticationResponse\:\:getResult\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
