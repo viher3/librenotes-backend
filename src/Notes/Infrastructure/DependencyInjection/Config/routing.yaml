@@ -62,3 +62,43 @@ attachment_detail:
   path: /attachments/{id}
   methods: GET
   controller: App\Notes\Infrastructure\Ui\Controllers\AttachmentDetailController
+
+list_trash:
+  path: /trash
+  methods: GET
+  controller: App\Notes\Infrastructure\Ui\Controllers\ListTrashController
+
+empty_trash:
+  path: /trash
+  methods: DELETE
+  controller: App\Notes\Infrastructure\Ui\Controllers\EmptyTrashController
+
+restore_folder:
+  path: /trash/folders/{id}/restore
+  methods: POST
+  controller: App\Notes\Infrastructure\Ui\Controllers\RestoreFolderController
+
+restore_note:
+  path: /trash/notes/{id}/restore
+  methods: POST
+  controller: App\Notes\Infrastructure\Ui\Controllers\RestoreNoteController
+
+restore_attachment:
+  path: /trash/attachments/{id}/restore
+  methods: POST
+  controller: App\Notes\Infrastructure\Ui\Controllers\RestoreAttachmentController
+
+permanently_delete_folder:
+  path: /trash/folders/{id}
+  methods: DELETE
+  controller: App\Notes\Infrastructure\Ui\Controllers\PermanentlyDeleteFolderController
+
+permanently_delete_note:
+  path: /trash/notes/{id}
+  methods: DELETE
+  controller: App\Notes\Infrastructure\Ui\Controllers\PermanentlyDeleteNoteController
+
+permanently_delete_attachment:
+  path: /trash/attachments/{id}
+  methods: DELETE
+  controller: App\Notes\Infrastructure\Ui\Controllers\PermanentlyDeleteAttachmentController

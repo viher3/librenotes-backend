@@ -36,7 +36,7 @@ class MoveFolderHandler implements TransactionalCommandHandler
             $targetParentFolderId = new FolderId($command->parentFolderId);
             $targetParent = $this->folderRepository->getById($targetParentFolderId->value());
 
-            if ($targetParent === null || !$targetParent->belongsTo($ownerId)) {
+            if ($targetParent === null || !$targetParent->belongsTo($ownerId) || $targetParent->isDeleted()) {
                 throw new FolderNotFound($command->parentFolderId);
             }
         }

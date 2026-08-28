@@ -10,6 +10,7 @@ use App\Notes\Domain\Repository\AttachmentRepository;
 use App\Notes\Domain\ValueObject\FolderId;
 use App\Notes\Domain\ValueObject\OwnerId;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -36,14 +37,38 @@ final class DoctrineAttachmentRepository extends DoctrineRepository implements A
 
     public function findByFolder(FolderId $folderId, OwnerId $ownerId): array
     {
+        return $this->byFolderQueryBuilder($folderId, $ownerId)
+            ->andWhere('a.deletedAt IS NULL')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findAllByFolder(FolderId $folderId, OwnerId $ownerId): array
+    {
+        return $this->byFolderQueryBuilder($folderId, $ownerId)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findTrashed(OwnerId $ownerId): array
+    {
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.ownerId = :ownerId')
+            ->andWhere('a.deletedAt IS NOT NULL')
+            ->setParameter('ownerId', $ownerId->value())
+            ->orderBy('a.deletedAt', 'desc')
+            ->getQuery()
+            ->getResult();
+    }
+
+    private function byFolderQueryBuilder(FolderId $folderId, OwnerId $ownerId): QueryBuilder
+    {
         return $this->createQueryBuilder('a')
             ->andWhere('a.ownerId = :ownerId')
             ->andWhere('a.folderId = :folderId')
             ->setParameter('ownerId', $ownerId->value())
             ->setParameter('folderId', $folderId->value())
-            ->orderBy('a.createdAt', 'desc')
-            ->getQuery()
-            ->getResult();
+            ->orderBy('a.createdAt', 'desc');
     }
 
     public function delete(Attachment $attachment): void

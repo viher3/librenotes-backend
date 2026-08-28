@@ -10,6 +10,7 @@ use App\Notes\Domain\Repository\FolderRepository;
 use App\Notes\Domain\ValueObject\FolderId;
 use App\Notes\Domain\ValueObject\OwnerId;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -36,6 +37,32 @@ final class DoctrineFolderRepository extends DoctrineRepository implements Folde
 
     public function findChildren(?FolderId $parentFolderId, OwnerId $ownerId): array
     {
+        return $this->childrenQueryBuilder($parentFolderId, $ownerId)
+            ->andWhere('f.deletedAt IS NULL')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findAllChildren(?FolderId $parentFolderId, OwnerId $ownerId): array
+    {
+        return $this->childrenQueryBuilder($parentFolderId, $ownerId)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findTrashed(OwnerId $ownerId): array
+    {
+        return $this->createQueryBuilder('f')
+            ->andWhere('f.ownerId = :ownerId')
+            ->andWhere('f.deletedAt IS NOT NULL')
+            ->setParameter('ownerId', $ownerId->value())
+            ->orderBy('f.deletedAt', 'desc')
+            ->getQuery()
+            ->getResult();
+    }
+
+    private function childrenQueryBuilder(?FolderId $parentFolderId, OwnerId $ownerId): QueryBuilder
+    {
         $qb = $this->createQueryBuilder('f')
             ->andWhere('f.ownerId = :ownerId')
             ->setParameter('ownerId', $ownerId->value())
@@ -48,7 +75,7 @@ final class DoctrineFolderRepository extends DoctrineRepository implements Folde
                 ->setParameter('parentFolderId', $parentFolderId->value());
         }
 
-        return $qb->getQuery()->getResult();
+        return $qb;
     }
 
     public function isDescendantOf(FolderId $candidate, FolderId $ancestor): bool

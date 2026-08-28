@@ -24,6 +24,7 @@ class Attachment extends AggregateRoot
     private FileSizeBytes $sizeBytes;
     private StorageKey $storageKey;
     private DateTimeValueObject $createdAt;
+    private ?DateTimeValueObject $deletedAt = null;
 
     public function __construct(
         AttachmentId $id,
@@ -48,6 +49,25 @@ class Attachment extends AggregateRoot
     public function belongsTo(OwnerId $ownerId): bool
     {
         return $this->ownerId->equals($ownerId);
+    }
+
+    public function moveToTrash(\DateTimeInterface $now): void
+    {
+        if ($this->deletedAt !== null) {
+            return;
+        }
+
+        $this->deletedAt = new DateTimeValueObject($now);
+    }
+
+    public function restore(): void
+    {
+        $this->deletedAt = null;
+    }
+
+    public function isDeleted(): bool
+    {
+        return $this->deletedAt !== null;
     }
 
     public function getId(): AttachmentId
@@ -88,5 +108,10 @@ class Attachment extends AggregateRoot
     public function getCreatedAt(): DateTimeValueObject
     {
         return $this->createdAt;
+    }
+
+    public function getDeletedAt(): ?DateTimeValueObject
+    {
+        return $this->deletedAt;
     }
 }

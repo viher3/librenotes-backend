@@ -31,7 +31,7 @@ class FolderContentsHandler implements QueryHandler
             $folderId = new FolderId($query->folderId);
             $folder = $this->folderRepository->getById($folderId->value());
 
-            if ($folder === null || !$folder->belongsTo($ownerId)) {
+            if ($folder === null || !$folder->belongsTo($ownerId) || $folder->isDeleted()) {
                 throw new FolderNotFound($query->folderId);
             }
         }

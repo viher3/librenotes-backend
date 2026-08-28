@@ -30,7 +30,7 @@ class CreateFolderHandler implements TransactionalCommandHandler
             $parentFolderId = new FolderId($command->parentFolderId);
             $parent = $this->folderRepository->getById($parentFolderId->value());
 
-            if ($parent === null || !$parent->belongsTo($ownerId)) {
+            if ($parent === null || !$parent->belongsTo($ownerId) || $parent->isDeleted()) {
                 throw new FolderNotFound($command->parentFolderId);
             }
         }

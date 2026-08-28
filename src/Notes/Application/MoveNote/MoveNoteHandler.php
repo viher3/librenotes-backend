@@ -37,7 +37,7 @@ class MoveNoteHandler implements TransactionalCommandHandler
             $folderId = new FolderId($command->folderId);
             $folder = $this->folderRepository->getById($folderId->value());
 
-            if ($folder === null || !$folder->belongsTo($ownerId)) {
+            if ($folder === null || !$folder->belongsTo($ownerId) || $folder->isDeleted()) {
                 throw new FolderNotFound($command->folderId);
             }
         }

@@ -26,6 +26,7 @@ class Note extends AggregateRoot
     private OwnerId $ownerId;
     private DateTimeValueObject $createdAt;
     private DateTimeValueObject $updatedAt;
+    private ?DateTimeValueObject $deletedAt = null;
 
     public function __construct(
         NoteId $id,
@@ -70,6 +71,25 @@ class Note extends AggregateRoot
         return $this->ownerId->equals($ownerId);
     }
 
+    public function moveToTrash(\DateTimeInterface $now): void
+    {
+        if ($this->deletedAt !== null) {
+            return;
+        }
+
+        $this->deletedAt = new DateTimeValueObject($now);
+    }
+
+    public function restore(): void
+    {
+        $this->deletedAt = null;
+    }
+
+    public function isDeleted(): bool
+    {
+        return $this->deletedAt !== null;
+    }
+
     public function getId(): NoteId
     {
         return $this->id;
@@ -103,5 +123,10 @@ class Note extends AggregateRoot
     public function getUpdatedAt(): DateTimeValueObject
     {
         return $this->updatedAt;
+    }
+
+    public function getDeletedAt(): ?DateTimeValueObject
+    {
+        return $this->deletedAt;
     }
 }

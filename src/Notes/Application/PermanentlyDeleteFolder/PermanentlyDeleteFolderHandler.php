@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Notes\Application\DeleteFolder;
+namespace App\Notes\Application\PermanentlyDeleteFolder;
 
 use App\Core\Application\Command\TransactionalCommandHandler;
 use App\Notes\Domain\Exception\FolderNotFound;
+use App\Notes\Domain\Exception\NotInTrash;
 use App\Notes\Domain\Model\Folder;
 use App\Notes\Domain\Repository\AttachmentRepository;
 use App\Notes\Domain\Repository\FolderRepository;
@@ -14,10 +15,12 @@ use App\Notes\Domain\Service\FileStoragePort;
 use App\Notes\Domain\ValueObject\OwnerId;
 
 /**
- * Deletes a folder together with everything it contains: subfolders (recursively),
- * notes and attachments — including the attachments' underlying files on disk.
+ * Permanently deletes a folder that is already in the trash, together with
+ * everything it contains — including the attachments' underlying files on disk.
+ * Only reachable through the trash: the folder (and therefore its whole subtree,
+ * trashed along with it) must already be soft-deleted.
  */
-class DeleteFolderHandler implements TransactionalCommandHandler
+class PermanentlyDeleteFolderHandler implements TransactionalCommandHandler
 {
     public function __construct(
         private FolderRepository $folderRepository,
@@ -27,7 +30,7 @@ class DeleteFolderHandler implements TransactionalCommandHandler
     ) {
     }
 
-    public function __invoke(DeleteFolderCommand $command): void
+    public function __invoke(PermanentlyDeleteFolderCommand $command): void
     {
         $ownerId = new OwnerId($command->ownerId);
         $folder = $this->folderRepository->getById($command->id);
@@ -36,20 +39,24 @@ class DeleteFolderHandler implements TransactionalCommandHandler
             throw new FolderNotFound($command->id);
         }
 
+        if (!$folder->isDeleted()) {
+            throw new NotInTrash($command->id);
+        }
+
         $this->deleteRecursively($folder, $ownerId);
     }
 
     private function deleteRecursively(Folder $folder, OwnerId $ownerId): void
     {
-        foreach ($this->folderRepository->findChildren($folder->getId(), $ownerId) as $childFolder) {
+        foreach ($this->folderRepository->findAllChildren($folder->getId(), $ownerId) as $childFolder) {
             $this->deleteRecursively($childFolder, $ownerId);
         }
 
-        foreach ($this->noteRepository->findByFolder($folder->getId(), $ownerId) as $note) {
+        foreach ($this->noteRepository->findAllByFolder($folder->getId(), $ownerId) as $note) {
             $this->noteRepository->delete($note);
         }
 
-        foreach ($this->attachmentRepository->findByFolder($folder->getId(), $ownerId) as $attachment) {
+        foreach ($this->attachmentRepository->findAllByFolder($folder->getId(), $ownerId) as $attachment) {
             $this->fileStorage->delete($attachment->getStorageKey()->value());
             $this->attachmentRepository->delete($attachment);
         }

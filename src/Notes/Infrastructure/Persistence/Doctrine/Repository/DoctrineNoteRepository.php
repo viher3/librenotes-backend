@@ -10,6 +10,7 @@ use App\Notes\Domain\Repository\NoteRepository;
 use App\Notes\Domain\ValueObject\FolderId;
 use App\Notes\Domain\ValueObject\OwnerId;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -36,6 +37,32 @@ final class DoctrineNoteRepository extends DoctrineRepository implements NoteRep
 
     public function findByFolder(?FolderId $folderId, OwnerId $ownerId): array
     {
+        return $this->byFolderQueryBuilder($folderId, $ownerId)
+            ->andWhere('n.deletedAt IS NULL')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findAllByFolder(?FolderId $folderId, OwnerId $ownerId): array
+    {
+        return $this->byFolderQueryBuilder($folderId, $ownerId)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findTrashed(OwnerId $ownerId): array
+    {
+        return $this->createQueryBuilder('n')
+            ->andWhere('n.ownerId = :ownerId')
+            ->andWhere('n.deletedAt IS NOT NULL')
+            ->setParameter('ownerId', $ownerId->value())
+            ->orderBy('n.deletedAt', 'desc')
+            ->getQuery()
+            ->getResult();
+    }
+
+    private function byFolderQueryBuilder(?FolderId $folderId, OwnerId $ownerId): QueryBuilder
+    {
         $qb = $this->createQueryBuilder('n')
             ->andWhere('n.ownerId = :ownerId')
             ->setParameter('ownerId', $ownerId->value())
@@ -48,7 +75,7 @@ final class DoctrineNoteRepository extends DoctrineRepository implements NoteRep
                 ->setParameter('folderId', $folderId->value());
         }
 
-        return $qb->getQuery()->getResult();
+        return $qb;
     }
 
     public function delete(Note $note): void

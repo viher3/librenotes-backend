@@ -15,9 +15,23 @@ interface AttachmentRepository
     public function getById(string $id): ?Attachment;
 
     /**
+     * Attachments in the folder that are not in trash — backs normal browsing.
+     *
      * @return Attachment[]
      */
     public function findByFolder(FolderId $folderId, OwnerId $ownerId): array;
+
+    /**
+     * Attachments in the folder regardless of trash state — backs trash/restore cascades.
+     *
+     * @return Attachment[]
+     */
+    public function findAllByFolder(FolderId $folderId, OwnerId $ownerId): array;
+
+    /**
+     * @return Attachment[]
+     */
+    public function findTrashed(OwnerId $ownerId): array;
 
     public function delete(Attachment $attachment): void;
 }

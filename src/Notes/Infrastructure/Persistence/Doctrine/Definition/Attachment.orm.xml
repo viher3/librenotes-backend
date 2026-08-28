@@ -15,8 +15,10 @@
         <field name="sizeBytes" column="size_bytes" type="attachment_size_bytes"/>
         <field name="storageKey" column="storage_key" type="attachment_storage_key" unique="true"/>
         <field name="createdAt" column="created_at" type="datetime_vo"/>
+        <field name="deletedAt" column="deleted_at" type="datetime_vo" nullable="true"/>
         <indexes>
             <index name="idx_attachment_owner_folder" columns="owner_id,folder_id"/>
+            <index name="idx_attachment_owner_deleted" columns="owner_id,deleted_at"/>
         </indexes>
     </entity>
 </doctrine-mapping>
