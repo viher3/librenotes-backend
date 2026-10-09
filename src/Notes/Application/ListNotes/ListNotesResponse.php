@@ -12,9 +12,11 @@ class ListNotesResponse implements QueryResponse
 {
     /**
      * @param Note[] $notes
+     * @param array<string, int> $childCounts live children (notes and links) per note id
      */
     public function __construct(
         private array $notes,
+        private array $childCounts,
         private int $total,
         private int $page,
         private int $size
@@ -34,10 +36,12 @@ class ListNotesResponse implements QueryResponse
                 'last_page' => (int) ceil($this->total / $this->size),
             ],
             'data' => array_map(
-                static fn (Note $note) => [
+                fn (Note $note) => [
                     'id' => $note->getId()->value(),
                     'title' => $note->getTitle()->value(),
                     'folder_id' => $note->getFolderId()?->value(),
+                    'parent_note_id' => $note->getParentNoteId()?->value(),
+                    'child_count' => $this->childCounts[$note->getId()->value()] ?? 0,
                     'pinned' => $note->isPinned(),
                     'tags' => $note->getTags()->names(),
                     'created_at' => $note->getCreatedAt()->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),

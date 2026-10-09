@@ -11,6 +11,7 @@
         <field name="title" column="title" type="note_title"/>
         <field name="content" column="content" type="note_content"/>
         <field name="folderId" column="folder_id" type="folder_id" length="36" nullable="true"/>
+        <field name="parentNoteId" column="parent_note_id" type="note_id" length="36" nullable="true"/>
         <field name="ownerId" column="owner_id" type="notes_owner_id" length="36"/>
         <field name="pinned" column="pinned" type="bool_vo">
             <options>
@@ -23,6 +24,7 @@
         <field name="deletedAt" column="deleted_at" type="datetime_vo" nullable="true"/>
         <indexes>
             <index name="idx_note_owner_folder" columns="owner_id,folder_id"/>
+            <index name="idx_note_owner_parent" columns="owner_id,parent_note_id"/>
             <index name="idx_note_owner_deleted" columns="owner_id,deleted_at"/>
         </indexes>
     </entity>

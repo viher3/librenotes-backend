@@ -11,7 +11,7 @@ use App\Notes\Domain\Repository\FolderRepository;
 use App\Notes\Domain\Repository\LinkRepository;
 use App\Notes\Domain\Repository\NoteRepository;
 use App\Notes\Domain\Service\FileStoragePort;
-use App\Notes\Domain\Service\NoteAttachmentLifecycle;
+use App\Notes\Domain\Service\NoteTreeLifecycle;
 use App\Notes\Domain\ValueObject\OwnerId;
 
 /**
@@ -27,7 +27,7 @@ class EmptyTrashHandler implements TransactionalCommandHandler
         private LinkRepository $linkRepository,
         private AttachmentRepository $attachmentRepository,
         private FileStoragePort $fileStorage,
-        private NoteAttachmentLifecycle $noteAttachments
+        private NoteTreeLifecycle $noteTree
     ) {
     }
 
@@ -45,11 +45,18 @@ class EmptyTrashHandler implements TransactionalCommandHandler
         }
 
         foreach ($this->noteRepository->findTrashed($ownerId) as $note) {
-            $this->noteAttachments->deletePermanently($note, $ownerId);
+            if ($this->noteRepository->getById($note->getId()->value()) === null) {
+                // Already removed with the note it was under.
+                continue;
+            }
+            $this->noteTree->deletePermanently($note, $ownerId);
             $this->noteRepository->delete($note);
         }
 
         foreach ($this->linkRepository->findTrashed($ownerId) as $link) {
+            if ($this->linkRepository->getById($link->getId()->value()) === null) {
+                continue;
+            }
             $this->linkRepository->delete($link);
         }
 
@@ -66,7 +73,7 @@ class EmptyTrashHandler implements TransactionalCommandHandler
         }
 
         foreach ($this->noteRepository->findAllByFolder($folder->getId(), $ownerId) as $note) {
-            $this->noteAttachments->deletePermanently($note, $ownerId);
+            $this->noteTree->deletePermanently($note, $ownerId);
             $this->noteRepository->delete($note);
         }
 

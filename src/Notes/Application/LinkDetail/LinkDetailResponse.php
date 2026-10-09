@@ -26,6 +26,7 @@ class LinkDetailResponse implements QueryResponse
             'url' => $this->link->getUrl()->value(),
             'note' => $this->link->getNote()?->value(),
             'folder_id' => $this->link->getFolderId()?->value(),
+            'parent_note_id' => $this->link->getParentNoteId()?->value(),
             'tags' => $this->link->getTags()->names(),
             'created_at' => $this->link->getCreatedAt()->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),
             'updated_at' => $this->link->getUpdatedAt()->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),

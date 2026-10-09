@@ -7,6 +7,7 @@ namespace App\Notes\Domain\Model;
 use App\Core\Domain\Aggregate\AggregateRoot;
 use App\Core\Domain\ValueObject\BoolValueObject;
 use App\Core\Domain\ValueObject\DateTimeValueObject;
+use App\Notes\Domain\Exception\InvalidContentLocation;
 use App\Notes\Domain\ValueObject\FolderId;
 use App\Notes\Domain\ValueObject\NoteContent;
 use App\Notes\Domain\ValueObject\NoteId;
@@ -27,6 +28,7 @@ class Note extends AggregateRoot
     protected NoteTitle $title;
     protected NoteContent $content;
     private ?FolderId $folderId;
+    private ?NoteId $parentNoteId;
     private OwnerId $ownerId;
     protected BoolValueObject $pinned;
     protected Tags $tags;
@@ -42,12 +44,18 @@ class Note extends AggregateRoot
         OwnerId $ownerId,
         \DateTimeInterface $createdAt,
         bool $pinned = false,
-        ?Tags $tags = null
+        ?Tags $tags = null,
+        ?NoteId $parentNoteId = null
     ) {
+        if ($folderId !== null && $parentNoteId !== null) {
+            throw new InvalidContentLocation();
+        }
+
         $this->id = $id;
         $this->title = $title;
         $this->content = $content;
         $this->folderId = $folderId;
+        $this->parentNoteId = $parentNoteId;
         $this->ownerId = $ownerId;
         $this->pinned = new BoolValueObject($pinned);
         $this->tags = $tags ?? Tags::empty();
@@ -72,9 +80,17 @@ class Note extends AggregateRoot
         };
     }
 
-    public function moveTo(?FolderId $folderId, \DateTimeInterface $now): void
+    /**
+     * Places the note in a folder, under another note, or at the root (both null).
+     */
+    public function moveTo(?FolderId $folderId, ?NoteId $parentNoteId, \DateTimeInterface $now): void
     {
+        if ($folderId !== null && $parentNoteId !== null) {
+            throw new InvalidContentLocation();
+        }
+
         $this->folderId = $folderId;
+        $this->parentNoteId = $parentNoteId;
         $this->updatedAt = new DateTimeValueObject($now);
     }
 
@@ -130,6 +146,11 @@ class Note extends AggregateRoot
     public function getFolderId(): ?FolderId
     {
         return $this->folderId;
+    }
+
+    public function getParentNoteId(): ?NoteId
+    {
+        return $this->parentNoteId;
     }
 
     public function getOwnerId(): OwnerId

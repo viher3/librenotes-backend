@@ -16,7 +16,8 @@ readonly class CreateLinkCommand implements Command
         public ?string $folderId,
         public string $ownerId,
         /** @var string[] */
-        public array $tags = []
+        public array $tags = [],
+        public ?string $parentNoteId = null
     ) {
     }
 }

@@ -41,7 +41,8 @@ class ListNotesController extends BaseApiController
                 orderBy: $orderBy,
                 orderDirection: $orderDirection,
                 page: $page,
-                size: $size
+                size: $size,
+                parentNoteId: isset($params['parent_note_id']) ? (string) $params['parent_note_id'] : null
             )
         );
 
@@ -59,6 +60,9 @@ class ListNotesController extends BaseApiController
         if (isset($params['folder_id']) && $params['folder_id'] !== self::ROOT
             && !preg_match(self::UUID_PATTERN, (string) $params['folder_id'])) {
             $errors[] = '[folder_id] Must be a UUID or "root"';
+        }
+        if (isset($params['parent_note_id']) && !preg_match(self::UUID_PATTERN, (string) $params['parent_note_id'])) {
+            $errors[] = '[parent_note_id] Must be a UUID';
         }
         if (isset($params['orderBy']) && !in_array($params['orderBy'], NoteListCriteria::ORDER_FIELDS, true)) {
             $errors[] = '[orderBy] Must be one of: ' . implode(', ', NoteListCriteria::ORDER_FIELDS);

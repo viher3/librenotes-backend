@@ -40,6 +40,7 @@ class ListLinksResponse implements QueryResponse
                     'url' => $link->getUrl()->value(),
                     'note' => $link->getNote()?->value(),
                     'folder_id' => $link->getFolderId()?->value(),
+                    'parent_note_id' => $link->getParentNoteId()?->value(),
                     'tags' => $link->getTags()->names(),
                     'created_at' => $link->getCreatedAt()->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),
                     'updated_at' => $link->getUpdatedAt()->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),

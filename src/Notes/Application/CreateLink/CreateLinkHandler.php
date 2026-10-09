@@ -6,11 +6,9 @@ namespace App\Notes\Application\CreateLink;
 
 use App\Core\Application\Command\TransactionalCommandHandler;
 use App\Core\Domain\Time\DateTimeProvider;
-use App\Notes\Domain\Exception\FolderNotFound;
 use App\Notes\Domain\Model\Link;
-use App\Notes\Domain\Repository\FolderRepository;
 use App\Notes\Domain\Repository\LinkRepository;
-use App\Notes\Domain\ValueObject\FolderId;
+use App\Notes\Domain\Service\ContentPlacement;
 use App\Notes\Domain\ValueObject\LinkId;
 use App\Notes\Domain\ValueObject\LinkNote;
 use App\Notes\Domain\ValueObject\LinkTitle;
@@ -22,7 +20,7 @@ class CreateLinkHandler implements TransactionalCommandHandler
 {
     public function __construct(
         private LinkRepository $linkRepository,
-        private FolderRepository $folderRepository,
+        private ContentPlacement $placement,
         private DateTimeProvider $dateTimeProvider
     ) {
     }
@@ -30,16 +28,7 @@ class CreateLinkHandler implements TransactionalCommandHandler
     public function __invoke(CreateLinkCommand $command): void
     {
         $ownerId = new OwnerId($command->ownerId);
-        $folderId = null;
-
-        if ($command->folderId !== null) {
-            $folderId = new FolderId($command->folderId);
-            $folder = $this->folderRepository->getById($folderId->value());
-
-            if ($folder === null || !$folder->belongsTo($ownerId) || $folder->isDeleted()) {
-                throw new FolderNotFound($command->folderId);
-            }
-        }
+        [$folderId, $parentNoteId] = $this->placement->resolve($command->folderId, $command->parentNoteId, $ownerId);
 
         $this->linkRepository->save(
             new Link(
@@ -50,7 +39,8 @@ class CreateLinkHandler implements TransactionalCommandHandler
                 folderId: $folderId,
                 ownerId: $ownerId,
                 createdAt: $this->dateTimeProvider->now(),
-                tags: new Tags($command->tags)
+                tags: new Tags($command->tags),
+                parentNoteId: $parentNoteId
             )
         );
     }

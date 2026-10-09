@@ -8,7 +8,9 @@ use App\Notes\Domain\Exception\FolderNotFound;
 use App\Notes\Domain\Repository\AttachmentRepository;
 use App\Notes\Domain\Repository\FolderRepository;
 use App\Notes\Domain\Repository\LinkRepository;
+use App\Notes\Domain\Model\Note;
 use App\Notes\Domain\Repository\NoteRepository;
+use App\Notes\Domain\Service\NoteHierarchy;
 use App\Notes\Domain\ValueObject\FolderId;
 use App\Notes\Domain\ValueObject\OwnerId;
 use App\Core\Application\Query\QueryHandler;
@@ -19,7 +21,8 @@ class FolderContentsHandler implements QueryHandler
         private FolderRepository $folderRepository,
         private NoteRepository $noteRepository,
         private LinkRepository $linkRepository,
-        private AttachmentRepository $attachmentRepository
+        private AttachmentRepository $attachmentRepository,
+        private NoteHierarchy $hierarchy
     ) {
     }
 
@@ -38,10 +41,14 @@ class FolderContentsHandler implements QueryHandler
             }
         }
 
+        $notes = $this->noteRepository->findByFolder($folderId, $ownerId);
+
         return new FolderContentsResponse(
             folder: $folder,
             subfolders: $this->folderRepository->findChildren($folderId, $ownerId),
-            notes: $this->noteRepository->findByFolder($folderId, $ownerId),
+            notes: $notes,
+            childCounts: $this->noteRepository->countChildren($ownerId, array_map(static fn (Note $n) => $n->getId()->value(), $notes)),
+            path: $folder !== null ? $this->hierarchy->pathOfFolder($folder) : [],
             links: $this->linkRepository->findByFolder($folderId, $ownerId),
             attachments: $folderId !== null ? $this->attachmentRepository->findByFolder($folderId, $ownerId) : []
         );

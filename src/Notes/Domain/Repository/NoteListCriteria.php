@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Notes\Domain\Repository;
 
 use App\Notes\Domain\ValueObject\FolderId;
+use App\Notes\Domain\ValueObject\NoteId;
 use App\Notes\Domain\ValueObject\OwnerId;
 
 readonly class NoteListCriteria
@@ -14,7 +15,7 @@ readonly class NoteListCriteria
     public const int MAX_SIZE = 100;
 
     /**
-     * @param bool $rootOnly   true = only notes without a folder (takes precedence over $folderId)
+     * @param bool $rootOnly   true = only notes with neither folder nor parent note (takes precedence over the other filters)
      * @param ?string $tag     normalized tag name
      */
     public function __construct(
@@ -26,7 +27,8 @@ readonly class NoteListCriteria
         public string $orderBy = 'updated_at',
         public string $orderDirection = 'desc',
         public int $page = 1,
-        public int $size = self::DEFAULT_SIZE
+        public int $size = self::DEFAULT_SIZE,
+        public ?NoteId $parentNoteId = null
     ) {
     }
 }

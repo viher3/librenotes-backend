@@ -9,6 +9,7 @@ use App\Notes\Application\RestoreLink\RestoreLinkCommand;
 use App\Notes\Domain\Exception\LinkNotFound;
 use App\Notes\Domain\Exception\NotInTrash;
 use App\Notes\Domain\Exception\ParentFolderInTrash;
+use App\Notes\Domain\Exception\ParentNoteInTrash;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -35,6 +36,7 @@ class RestoreLinkController extends BaseApiController
             LinkNotFound::class => Response::HTTP_NOT_FOUND,
             NotInTrash::class => Response::HTTP_CONFLICT,
             ParentFolderInTrash::class => Response::HTTP_CONFLICT,
+            ParentNoteInTrash::class => Response::HTTP_CONFLICT,
         ];
     }
 }

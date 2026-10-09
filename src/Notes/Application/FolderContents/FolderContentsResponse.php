@@ -16,6 +16,8 @@ class FolderContentsResponse implements QueryResponse
     /**
      * @param Folder[] $subfolders
      * @param Note[] $notes
+     * @param array<string, int> $childCounts live children (notes and links) per note id
+     * @param list<array{type: string, id: string, title: string}> $path ancestors of the folder, root first
      * @param Link[] $links
      * @param Attachment[] $attachments
      */
@@ -23,6 +25,8 @@ class FolderContentsResponse implements QueryResponse
         private ?Folder $folder,
         private array $subfolders,
         private array $notes,
+        private array $childCounts,
+        private array $path,
         private array $links,
         private array $attachments
     ) {
@@ -35,6 +39,7 @@ class FolderContentsResponse implements QueryResponse
                 'id' => $this->folder->getId()->value(),
                 'name' => $this->folder->getName()->value(),
                 'parent_folder_id' => $this->folder->getParentFolderId()?->value(),
+                'path' => $this->path,
             ] : null,
             'subfolders' => array_map(
                 static fn (Folder $folder) => [
@@ -45,11 +50,12 @@ class FolderContentsResponse implements QueryResponse
                 $this->subfolders
             ),
             'notes' => array_map(
-                static fn (Note $note) => [
+                fn (Note $note) => [
                     'id' => $note->getId()->value(),
                     'title' => $note->getTitle()->value(),
                     'pinned' => $note->isPinned(),
                     'tags' => $note->getTags()->names(),
+                    'child_count' => $this->childCounts[$note->getId()->value()] ?? 0,
                     'created_at' => $note->getCreatedAt()->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),
                     'updated_at' => $note->getUpdatedAt()->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),
                 ],

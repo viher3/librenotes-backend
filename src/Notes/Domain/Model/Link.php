@@ -6,11 +6,13 @@ namespace App\Notes\Domain\Model;
 
 use App\Core\Domain\Aggregate\AggregateRoot;
 use App\Core\Domain\ValueObject\DateTimeValueObject;
+use App\Notes\Domain\Exception\InvalidContentLocation;
 use App\Notes\Domain\ValueObject\FolderId;
 use App\Notes\Domain\ValueObject\LinkId;
 use App\Notes\Domain\ValueObject\LinkNote;
 use App\Notes\Domain\ValueObject\LinkTitle;
 use App\Notes\Domain\ValueObject\LinkUrl;
+use App\Notes\Domain\ValueObject\NoteId;
 use App\Notes\Domain\ValueObject\OwnerId;
 use App\Notes\Domain\ValueObject\Tags;
 
@@ -29,6 +31,7 @@ class Link extends AggregateRoot
     protected ?LinkNote $note;
     protected Tags $tags;
     private ?FolderId $folderId;
+    private ?NoteId $parentNoteId;
     private OwnerId $ownerId;
     private DateTimeValueObject $createdAt;
     private DateTimeValueObject $updatedAt;
@@ -42,14 +45,20 @@ class Link extends AggregateRoot
         ?FolderId $folderId,
         OwnerId $ownerId,
         \DateTimeInterface $createdAt,
-        ?Tags $tags = null
+        ?Tags $tags = null,
+        ?NoteId $parentNoteId = null
     ) {
+        if ($folderId !== null && $parentNoteId !== null) {
+            throw new InvalidContentLocation();
+        }
+
         $this->id = $id;
         $this->title = $title;
         $this->url = $url;
         $this->note = $note;
         $this->tags = $tags ?? Tags::empty();
         $this->folderId = $folderId;
+        $this->parentNoteId = $parentNoteId;
         $this->ownerId = $ownerId;
         $this->createdAt = new DateTimeValueObject($createdAt);
         $this->updatedAt = new DateTimeValueObject($createdAt);
@@ -75,9 +84,17 @@ class Link extends AggregateRoot
         };
     }
 
-    public function moveTo(?FolderId $folderId, \DateTimeInterface $now): void
+    /**
+     * Places the link in a folder, under a note, or at the root (both null).
+     */
+    public function moveTo(?FolderId $folderId, ?NoteId $parentNoteId, \DateTimeInterface $now): void
     {
+        if ($folderId !== null && $parentNoteId !== null) {
+            throw new InvalidContentLocation();
+        }
+
         $this->folderId = $folderId;
+        $this->parentNoteId = $parentNoteId;
         $this->updatedAt = new DateTimeValueObject($now);
     }
 
@@ -133,6 +150,11 @@ class Link extends AggregateRoot
     public function getFolderId(): ?FolderId
     {
         return $this->folderId;
+    }
+
+    public function getParentNoteId(): ?NoteId
+    {
+        return $this->parentNoteId;
     }
 
     public function getOwnerId(): OwnerId

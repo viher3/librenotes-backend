@@ -9,7 +9,7 @@ use App\Notes\Domain\Exception\FolderNotFound;
 use App\Notes\Domain\Exception\NotInTrash;
 use App\Notes\Domain\Model\Folder;
 use App\Notes\Domain\Repository\AttachmentRepository;
-use App\Notes\Domain\Service\NoteAttachmentLifecycle;
+use App\Notes\Domain\Service\NoteTreeLifecycle;
 use App\Notes\Domain\Repository\FolderRepository;
 use App\Notes\Domain\Repository\LinkRepository;
 use App\Notes\Domain\Repository\NoteRepository;
@@ -26,7 +26,7 @@ class RestoreFolderHandler implements TransactionalCommandHandler
         private NoteRepository $noteRepository,
         private LinkRepository $linkRepository,
         private AttachmentRepository $attachmentRepository,
-        private NoteAttachmentLifecycle $noteAttachments
+        private NoteTreeLifecycle $noteTree
     ) {
     }
 
@@ -54,7 +54,7 @@ class RestoreFolderHandler implements TransactionalCommandHandler
         foreach ($this->noteRepository->findAllByFolder($folder->getId(), $ownerId) as $note) {
             $note->restore();
             $this->noteRepository->save($note);
-            $this->noteAttachments->restore($note, $ownerId);
+            $this->noteTree->restore($note, $ownerId);
         }
 
         foreach ($this->linkRepository->findAllByFolder($folder->getId(), $ownerId) as $link) {

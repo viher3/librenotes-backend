@@ -7,6 +7,8 @@ namespace App\Notes\Infrastructure\Ui\Controllers;
 use App\Core\Infrastructure\Framework\Symfony\Controller\BaseApiController;
 use App\Notes\Application\CreateLink\CreateLinkCommand;
 use App\Notes\Domain\Exception\FolderNotFound;
+use App\Notes\Domain\Exception\InvalidContentLocation;
+use App\Notes\Domain\Exception\ParentNoteNotFound;
 use App\Notes\Domain\Exception\InvalidLinkUrl;
 use App\Notes\Domain\Exception\InvalidTag;
 use App\Notes\Domain\ValueObject\LinkId;
@@ -32,6 +34,7 @@ class CreateLinkController extends BaseApiController
                 url: $body['url'],
                 note: $body['note'] ?? null,
                 folderId: $body['folder_id'] ?? null,
+                parentNoteId: $body['parent_note_id'] ?? null,
                 ownerId: $this->currentUserId(),
                 tags: $body['tags'] ?? []
             )
@@ -50,6 +53,10 @@ class CreateLinkController extends BaseApiController
                 "url": {"type": "string", "minLength": 1, "maxLength": 2048},
                 "note": {"type": ["string", "null"]},
                 "folder_id": {"type": ["string", "null"], "format": "uuid"},
+                "parent_note_id": {
+                  "type": ["string", "null"],
+                  "format": "uuid"
+                },
                 "tags": {"type": "array", "items": {"type": "string"}}
               },
               "required": ["title", "url"]
@@ -64,6 +71,8 @@ class CreateLinkController extends BaseApiController
     {
         return [
             FolderNotFound::class => Response::HTTP_UNPROCESSABLE_ENTITY,
+            ParentNoteNotFound::class => Response::HTTP_UNPROCESSABLE_ENTITY,
+            InvalidContentLocation::class => Response::HTTP_UNPROCESSABLE_ENTITY,
             InvalidLinkUrl::class => Response::HTTP_UNPROCESSABLE_ENTITY,
             InvalidTag::class => Response::HTTP_UNPROCESSABLE_ENTITY,
         ];

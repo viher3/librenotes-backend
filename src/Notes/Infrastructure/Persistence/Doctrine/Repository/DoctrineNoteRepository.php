@@ -9,7 +9,9 @@ use App\Notes\Domain\Model\Note;
 use App\Notes\Domain\Repository\NoteListCriteria;
 use App\Notes\Domain\Repository\NoteRepository;
 use App\Notes\Domain\ValueObject\FolderId;
+use App\Notes\Domain\ValueObject\NoteId;
 use App\Notes\Domain\ValueObject\OwnerId;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -51,16 +53,65 @@ final class DoctrineNoteRepository extends DoctrineRepository implements NoteRep
             ->getResult();
     }
 
+    public function findByParent(NoteId $parentId, OwnerId $ownerId): array
+    {
+        return $this->byParentQueryBuilder($parentId, $ownerId)
+            ->andWhere('n.deletedAt IS NULL')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findAllByParent(NoteId $parentId, OwnerId $ownerId): array
+    {
+        return $this->byParentQueryBuilder($parentId, $ownerId)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function countChildren(OwnerId $ownerId, array $noteIds): array
+    {
+        if ($noteIds === []) {
+            return [];
+        }
+
+        $counts = array_fill_keys($noteIds, 0);
+        $connection = $this->getEntityManager()->getConnection();
+        $sql = <<<'SQL'
+            SELECT parent_note_id AS parent, COUNT(*) AS children FROM (
+                SELECT parent_note_id FROM note
+                WHERE owner_id = :owner AND deleted_at IS NULL AND parent_note_id IN (:ids)
+                UNION ALL
+                SELECT parent_note_id FROM link
+                WHERE owner_id = :owner AND deleted_at IS NULL AND parent_note_id IN (:ids)
+            ) c GROUP BY parent_note_id
+            SQL;
+
+        $rows = $connection->fetchAllAssociative(
+            $sql,
+            ['owner' => $ownerId->value(), 'ids' => array_values($noteIds)],
+            ['ids' => ArrayParameterType::STRING]
+        );
+        foreach ($rows as $row) {
+            $counts[(string) $row['parent']] = (int) $row['children'];
+        }
+
+        return $counts;
+    }
+
     public function findPage(NoteListCriteria $criteria): array
     {
         $where = ['n.owner_id = :owner', 'n.deleted_at IS NULL'];
         $params = ['owner' => $criteria->ownerId->value()];
 
         if ($criteria->rootOnly) {
-            $where[] = 'n.folder_id IS NULL';
+            // The root holds what is in no folder and under no note (notes nested under a note have no folder).
+            $where[] = 'n.folder_id IS NULL AND n.parent_note_id IS NULL';
         } elseif ($criteria->folderId !== null) {
             $where[] = 'n.folder_id = :folder';
             $params['folder'] = $criteria->folderId->value();
+        } elseif ($criteria->parentNoteId !== null) {
+            $where[] = 'n.parent_note_id = :parent';
+            $params['parent'] = $criteria->parentNoteId->value();
         }
         if ($criteria->pinned !== null) {
             $where[] = 'n.pinned = :pinned';
@@ -116,13 +167,23 @@ final class DoctrineNoteRepository extends DoctrineRepository implements NoteRep
             ->orderBy('n.updatedAt', 'desc');
 
         if ($folderId === null) {
-            $qb->andWhere('n.folderId IS NULL');
+            $qb->andWhere('n.folderId IS NULL AND n.parentNoteId IS NULL');
         } else {
             $qb->andWhere('n.folderId = :folderId')
                 ->setParameter('folderId', $folderId->value());
         }
 
         return $qb;
+    }
+
+    private function byParentQueryBuilder(NoteId $parentId, OwnerId $ownerId): QueryBuilder
+    {
+        return $this->createQueryBuilder('n')
+            ->andWhere('n.ownerId = :ownerId')
+            ->andWhere('n.parentNoteId = :parentId')
+            ->setParameter('ownerId', $ownerId->value())
+            ->setParameter('parentId', $parentId->value())
+            ->orderBy('n.title', 'asc');
     }
 
     public function delete(Note $note): void

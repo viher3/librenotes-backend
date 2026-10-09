@@ -6,18 +6,18 @@ namespace App\Notes\Application\MoveNote;
 
 use App\Core\Application\Command\TransactionalCommandHandler;
 use App\Core\Domain\Time\DateTimeProvider;
-use App\Notes\Domain\Exception\FolderNotFound;
 use App\Notes\Domain\Exception\NoteNotFound;
-use App\Notes\Domain\Repository\FolderRepository;
 use App\Notes\Domain\Repository\NoteRepository;
-use App\Notes\Domain\ValueObject\FolderId;
+use App\Notes\Domain\Service\ContentPlacement;
+use App\Notes\Domain\Service\NoteHierarchy;
 use App\Notes\Domain\ValueObject\OwnerId;
 
 class MoveNoteHandler implements TransactionalCommandHandler
 {
     public function __construct(
         private NoteRepository $noteRepository,
-        private FolderRepository $folderRepository,
+        private ContentPlacement $placement,
+        private NoteHierarchy $hierarchy,
         private DateTimeProvider $dateTimeProvider
     ) {
     }
@@ -31,18 +31,12 @@ class MoveNoteHandler implements TransactionalCommandHandler
             throw new NoteNotFound($command->id);
         }
 
-        $folderId = null;
-
-        if ($command->folderId !== null) {
-            $folderId = new FolderId($command->folderId);
-            $folder = $this->folderRepository->getById($folderId->value());
-
-            if ($folder === null || !$folder->belongsTo($ownerId) || $folder->isDeleted()) {
-                throw new FolderNotFound($command->folderId);
-            }
+        [$folderId, $parentNoteId] = $this->placement->resolve($command->folderId, $command->parentNoteId, $ownerId);
+        if ($parentNoteId !== null) {
+            $this->hierarchy->assertCanBePlacedUnder($note, $parentNoteId);
         }
 
-        $note->moveTo($folderId, $this->dateTimeProvider->now());
+        $note->moveTo($folderId, $parentNoteId, $this->dateTimeProvider->now());
 
         $this->noteRepository->save($note);
     }

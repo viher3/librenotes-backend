@@ -9,6 +9,7 @@ use App\Notes\Domain\Model\Link;
 use App\Notes\Domain\Repository\LinkListCriteria;
 use App\Notes\Domain\Repository\LinkRepository;
 use App\Notes\Domain\ValueObject\FolderId;
+use App\Notes\Domain\ValueObject\NoteId;
 use App\Notes\Domain\ValueObject\OwnerId;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
@@ -53,16 +54,34 @@ final class DoctrineLinkRepository extends DoctrineRepository implements LinkRep
             ->getResult();
     }
 
+    public function findByParent(NoteId $parentId, OwnerId $ownerId): array
+    {
+        return $this->byParentQueryBuilder($parentId, $ownerId)
+            ->andWhere('l.deletedAt IS NULL')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findAllByParent(NoteId $parentId, OwnerId $ownerId): array
+    {
+        return $this->byParentQueryBuilder($parentId, $ownerId)
+            ->getQuery()
+            ->getResult();
+    }
+
     public function findPage(LinkListCriteria $criteria): array
     {
         $where = ['l.owner_id = :owner', 'l.deleted_at IS NULL'];
         $params = ['owner' => $criteria->ownerId->value()];
 
         if ($criteria->rootOnly) {
-            $where[] = 'l.folder_id IS NULL';
+            $where[] = 'l.folder_id IS NULL AND l.parent_note_id IS NULL';
         } elseif ($criteria->folderId !== null) {
             $where[] = 'l.folder_id = :folder';
             $params['folder'] = $criteria->folderId->value();
+        } elseif ($criteria->parentNoteId !== null) {
+            $where[] = 'l.parent_note_id = :parent';
+            $params['parent'] = $criteria->parentNoteId->value();
         }
         if ($criteria->tag !== null) {
             $where[] = 'JSON_CONTAINS(l.tags, JSON_QUOTE(:tag))';
@@ -109,6 +128,16 @@ final class DoctrineLinkRepository extends DoctrineRepository implements LinkRep
             ->getResult();
     }
 
+    private function byParentQueryBuilder(NoteId $parentId, OwnerId $ownerId): QueryBuilder
+    {
+        return $this->createQueryBuilder('l')
+            ->andWhere('l.ownerId = :ownerId')
+            ->andWhere('l.parentNoteId = :parentId')
+            ->setParameter('ownerId', $ownerId->value())
+            ->setParameter('parentId', $parentId->value())
+            ->orderBy('l.title', 'asc');
+    }
+
     public function delete(Link $link): void
     {
         $this->remove($link);
@@ -122,7 +151,7 @@ final class DoctrineLinkRepository extends DoctrineRepository implements LinkRep
             ->orderBy('l.updatedAt', 'desc');
 
         if ($folderId === null) {
-            return $queryBuilder->andWhere('l.folderId IS NULL');
+            return $queryBuilder->andWhere('l.folderId IS NULL AND l.parentNoteId IS NULL');
         }
 
         return $queryBuilder

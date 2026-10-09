@@ -27,7 +27,7 @@ class NotesFlowTest extends WebTestCase
 
         $this->assertSame(200, $api->status());
         $this->assertEqualsCanonicalizing(
-            ['id', 'title', 'content', 'folder_id', 'pinned', 'tags', 'created_at', 'updated_at', 'attachments'],
+            ['id', 'title', 'content', 'folder_id', 'parent_note_id', 'path', 'child_count', 'pinned', 'tags', 'created_at', 'updated_at', 'attachments'],
             array_keys($note)
         );
         $this->assertSame('# Hello', $note['content']);
@@ -50,7 +50,7 @@ class NotesFlowTest extends WebTestCase
         $this->assertArrayHasKey('parent_folder_id', $contents['folder']);
         $this->assertSame($subfolderId, $contents['subfolders'][0]['id']);
         $this->assertArrayHasKey('created_at', $contents['subfolders'][0]);
-        $this->assertEqualsCanonicalizing(['id', 'title', 'pinned', 'tags', 'created_at', 'updated_at'], array_keys($contents['notes'][0]));
+        $this->assertEqualsCanonicalizing(['id', 'title', 'pinned', 'tags', 'child_count', 'created_at', 'updated_at'], array_keys($contents['notes'][0]));
         $this->assertEqualsCanonicalizing(
             ['id', 'file_name', 'mime_type', 'size_bytes', 'created_at'],
             array_keys($contents['attachments'][0])

@@ -9,6 +9,7 @@ use App\Notes\Application\RestoreNote\RestoreNoteCommand;
 use App\Notes\Domain\Exception\NoteNotFound;
 use App\Notes\Domain\Exception\NotInTrash;
 use App\Notes\Domain\Exception\ParentFolderInTrash;
+use App\Notes\Domain\Exception\ParentNoteInTrash;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -32,6 +33,7 @@ class RestoreNoteController extends BaseApiController
             NoteNotFound::class => Response::HTTP_NOT_FOUND,
             NotInTrash::class => Response::HTTP_CONFLICT,
             ParentFolderInTrash::class => Response::HTTP_CONFLICT,
+            ParentNoteInTrash::class => Response::HTTP_CONFLICT,
         ];
     }
 }

@@ -86,7 +86,7 @@ class NoteTagsAndListingTest extends WebTestCase
         $this->assertSame(['page' => 1, 'size' => 2, 'total' => 3, 'last_page' => 2], $page1['meta']);
         $this->assertSame(['a', 'b'], array_column($page1['data'], 'title'));
         $this->assertEqualsCanonicalizing(
-            ['id', 'title', 'folder_id', 'pinned', 'tags', 'created_at', 'updated_at'],
+            ['id', 'title', 'folder_id', 'parent_note_id', 'child_count', 'pinned', 'tags', 'created_at', 'updated_at'],
             array_keys($page1['data'][0])
         );
 

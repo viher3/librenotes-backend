@@ -13,10 +13,13 @@ class NoteDetailResponse implements QueryResponse
 {
     /**
      * @param Attachment[] $attachments
+     * @param list<array{type: string, id: string, title: string}> $path ancestors, root first
      */
     public function __construct(
         private Note $note,
-        private array $attachments = []
+        private array $attachments = [],
+        private array $path = [],
+        private int $childCount = 0
     ) {
     }
 
@@ -27,6 +30,9 @@ class NoteDetailResponse implements QueryResponse
             'title' => $this->note->getTitle()->value(),
             'content' => $this->note->getContent()->value(),
             'folder_id' => $this->note->getFolderId()?->value(),
+            'parent_note_id' => $this->note->getParentNoteId()?->value(),
+            'path' => $this->path,
+            'child_count' => $this->childCount,
             'pinned' => $this->note->isPinned(),
             'tags' => $this->note->getTags()->names(),
             'created_at' => $this->note->getCreatedAt()->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),

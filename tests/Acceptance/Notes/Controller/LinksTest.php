@@ -34,7 +34,7 @@ class LinksTest extends WebTestCase
 
         $this->assertSame(200, $api->status());
         $this->assertEqualsCanonicalizing(
-            ['id', 'title', 'url', 'note', 'folder_id', 'tags', 'created_at', 'updated_at'],
+            ['id', 'title', 'url', 'note', 'folder_id', 'parent_note_id', 'tags', 'created_at', 'updated_at'],
             array_keys($link)
         );
         $this->assertSame('https://symfony.com', $link['url']);

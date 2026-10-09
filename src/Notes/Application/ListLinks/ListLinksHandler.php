@@ -9,6 +9,7 @@ use App\Notes\Domain\Repository\LinkListCriteria;
 use App\Notes\Domain\Repository\LinkRepository;
 use App\Notes\Domain\Repository\NoteListCriteria;
 use App\Notes\Domain\ValueObject\FolderId;
+use App\Notes\Domain\ValueObject\NoteId;
 use App\Notes\Domain\ValueObject\OwnerId;
 use App\Notes\Domain\ValueObject\Tags;
 
@@ -33,7 +34,8 @@ class ListLinksHandler implements QueryHandler
                 orderBy: $query->orderBy ?? 'updated_at',
                 orderDirection: $query->orderDirection ?? 'desc',
                 page: $page,
-                size: $size
+                size: $size,
+                parentNoteId: $query->parentNoteId !== null ? new NoteId($query->parentNoteId) : null
             )
         );
 

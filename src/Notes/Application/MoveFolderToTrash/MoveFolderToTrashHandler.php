@@ -9,7 +9,7 @@ use App\Core\Domain\Time\DateTimeProvider;
 use App\Notes\Domain\Exception\FolderNotFound;
 use App\Notes\Domain\Model\Folder;
 use App\Notes\Domain\Repository\AttachmentRepository;
-use App\Notes\Domain\Service\NoteAttachmentLifecycle;
+use App\Notes\Domain\Service\NoteTreeLifecycle;
 use App\Notes\Domain\Repository\FolderRepository;
 use App\Notes\Domain\Repository\LinkRepository;
 use App\Notes\Domain\Repository\NoteRepository;
@@ -26,7 +26,7 @@ class MoveFolderToTrashHandler implements TransactionalCommandHandler
         private NoteRepository $noteRepository,
         private LinkRepository $linkRepository,
         private AttachmentRepository $attachmentRepository,
-        private NoteAttachmentLifecycle $noteAttachments,
+        private NoteTreeLifecycle $noteTree,
         private DateTimeProvider $dateTimeProvider
     ) {
     }
@@ -52,7 +52,7 @@ class MoveFolderToTrashHandler implements TransactionalCommandHandler
         foreach ($this->noteRepository->findAllByFolder($folder->getId(), $ownerId) as $note) {
             $note->moveToTrash($now);
             $this->noteRepository->save($note);
-            $this->noteAttachments->trash($note, $ownerId, $now);
+            $this->noteTree->trash($note, $ownerId, $now);
         }
 
         foreach ($this->linkRepository->findAllByFolder($folder->getId(), $ownerId) as $link) {

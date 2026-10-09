@@ -6,6 +6,7 @@ namespace App\Notes\Domain\Repository;
 
 use App\Notes\Domain\Model\Link;
 use App\Notes\Domain\ValueObject\FolderId;
+use App\Notes\Domain\ValueObject\NoteId;
 use App\Notes\Domain\ValueObject\OwnerId;
 
 interface LinkRepository
@@ -27,6 +28,20 @@ interface LinkRepository
      * @return Link[]
      */
     public function findAllByFolder(?FolderId $folderId, OwnerId $ownerId): array;
+
+    /**
+     * Links directly under a note that are not in trash — backs browsing the tree.
+     *
+     * @return Link[]
+     */
+    public function findByParent(NoteId $parentId, OwnerId $ownerId): array;
+
+    /**
+     * Links directly under a note regardless of trash state — backs trash/restore/delete cascades.
+     *
+     * @return Link[]
+     */
+    public function findAllByParent(NoteId $parentId, OwnerId $ownerId): array;
 
     /**
      * One page of the owner's links that are not in trash, plus the total number of matches.

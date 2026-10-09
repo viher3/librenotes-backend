@@ -7,6 +7,9 @@ namespace App\Notes\Infrastructure\Ui\Controllers;
 use App\Core\Infrastructure\Framework\Symfony\Controller\BaseApiController;
 use App\Notes\Application\MoveNote\MoveNoteCommand;
 use App\Notes\Domain\Exception\FolderNotFound;
+use App\Notes\Domain\Exception\NoteCycleDetected;
+use App\Notes\Domain\Exception\InvalidContentLocation;
+use App\Notes\Domain\Exception\ParentNoteNotFound;
 use App\Notes\Domain\Exception\NoteNotFound;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,6 +29,7 @@ class MoveNoteController extends BaseApiController
             new MoveNoteCommand(
                 id: $id,
                 folderId: $body['folder_id'] ?? null,
+                parentNoteId: $body['parent_note_id'] ?? null,
                 ownerId: $this->currentUserId()
             )
         );
@@ -42,6 +46,10 @@ class MoveNoteController extends BaseApiController
                 "folder_id": {
                   "type": ["string", "null"],
                   "format": "uuid"
+                },
+                "parent_note_id": {
+                  "type": ["string", "null"],
+                  "format": "uuid"
                 }
               }
             }
@@ -53,6 +61,9 @@ class MoveNoteController extends BaseApiController
         return [
             NoteNotFound::class => Response::HTTP_NOT_FOUND,
             FolderNotFound::class => Response::HTTP_UNPROCESSABLE_ENTITY,
+            ParentNoteNotFound::class => Response::HTTP_UNPROCESSABLE_ENTITY,
+            InvalidContentLocation::class => Response::HTTP_UNPROCESSABLE_ENTITY,
+            NoteCycleDetected::class => Response::HTTP_UNPROCESSABLE_ENTITY,
         ];
     }
 }

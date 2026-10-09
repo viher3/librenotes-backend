@@ -241,3 +241,21 @@ All gaps in §2 are closed: every item has code, migrations, OpenAPI documentati
 - `Configuration` acceptance tests fail locally because `CONFIGURATION_ENCRYPTION_KEYS` is commented out in `.env`.
 - CORS is still `Access-Control-Allow-Origin: *` (§6 task 7).
 - Notes can still be read by id after they are in the trash (`GET /notes/{id}`); only listings, search and downloads exclude trashed items.
+
+## 10. Notes as containers (the tree)
+
+A **note can hold other notes and links**, like a page that holds sub-pages, in addition to folders. Folders stay as pure containers; both can be mixed freely (folder → note → note → link ...).
+
+- **Model.** `note.parent_note_id` and `link.parent_note_id` (nullable, indexed with `owner_id`). A note or link lives in a folder **or** under a note **or** at the root, never in two places (`notes.invalid_location`). The migration is additive; existing data is untouched. Attachments are unchanged: they belong to a note or to a folder.
+- **Root.** "Root" now means _no folder and no parent note_. `GET /folders/contents` (no `folder_id`), `GET /notes?folder_id=root` and `GET /links?folder_id=root` exclude nested items; otherwise every nested note would also appear at the top level.
+- **API.**
+  - `parent_note_id` (mutually exclusive with `folder_id`) on `POST /notes`, `POST /links`, `PATCH /notes/{id}/move` and `PATCH /links/{id}/move`. A move with neither sends the item to the root.
+  - `GET /notes/{id}/children` → `{ notes, links }`: the direct children, notes ordered by title, each with `child_count`.
+  - `GET /notes` and `GET /links` accept `parent_note_id`.
+  - `child_count` (live children: notes + links) on note summaries in folder contents, note lists and children; `parent_note_id` on note and link lists and details.
+  - `GET /notes/{id}` returns `path`, and `GET /folders/contents` returns `folder.path`: the ancestors from the root down to the direct parent as `{type: folder|note, id, title}`, for breadcrumbs.
+- **Rules.** A note cannot be placed under itself or under any of its descendants (`note.cycle_detected`). The target parent must exist, be the user's and not be in the trash (`note.parent_not_found`, `422`, like a missing target folder). Trees are limited in practice to 100 levels by the code that walks them.
+- **Trash.** Trashing, restoring and permanently deleting a note does the same to everything under it (notes, links and all their attachments, files included), directly, through its folder, or when emptying the trash. Descendants of a trashed note are not listed separately in `GET /trash`; they come back with it. A child trashed on its own is listed, and cannot be restored while its parent note is in the trash (`notes.parent_note_in_trash`, `409`).
+- **Implementation.** `ContentPlacement` (validates "folder or parent note"), `NoteHierarchy` (cycles, ancestor paths) and `NoteTreeLifecycle` (subtree trash/restore/delete, built on `NoteAttachmentLifecycle`). Tests: `tests/Acceptance/Notes/Controller/NoteTreeTest.php`.
+
+Not done (still optional): manual ordering of siblings (needs a `position` column) and files attached directly to the root.

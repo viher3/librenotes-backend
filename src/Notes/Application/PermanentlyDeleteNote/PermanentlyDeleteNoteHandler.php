@@ -8,14 +8,14 @@ use App\Core\Application\Command\TransactionalCommandHandler;
 use App\Notes\Domain\Exception\NoteNotFound;
 use App\Notes\Domain\Exception\NotInTrash;
 use App\Notes\Domain\Repository\NoteRepository;
-use App\Notes\Domain\Service\NoteAttachmentLifecycle;
+use App\Notes\Domain\Service\NoteTreeLifecycle;
 use App\Notes\Domain\ValueObject\OwnerId;
 
 class PermanentlyDeleteNoteHandler implements TransactionalCommandHandler
 {
     public function __construct(
         private NoteRepository $noteRepository,
-        private NoteAttachmentLifecycle $noteAttachments
+        private NoteTreeLifecycle $noteTree
     ) {
     }
 
@@ -32,7 +32,7 @@ class PermanentlyDeleteNoteHandler implements TransactionalCommandHandler
             throw new NotInTrash($command->id);
         }
 
-        $this->noteAttachments->deletePermanently($note, $ownerId);
+        $this->noteTree->deletePermanently($note, $ownerId);
         $this->noteRepository->delete($note);
     }
 }

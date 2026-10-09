@@ -49,6 +49,11 @@ components:
           type: string
           format: uuid
           nullable: true
+        parent_note_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: Place it under this note instead of in a folder (never both).
 
     CreateNoteRequest:
       type: object
@@ -64,6 +69,11 @@ components:
           type: string
           format: uuid
           nullable: true
+        parent_note_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: Place it under this note instead of in a folder (never both).
         pinned:
           type: boolean
           default: false
@@ -116,6 +126,9 @@ components:
           format: uuid
         title:
           type: string
+        child_count:
+          type: integer
+          description: Live children (notes and links) directly under it.
         pinned:
           type: boolean
         tags:
@@ -160,6 +173,8 @@ components:
               type: string
               format: uuid
               nullable: true
+            path:
+              $ref: '#/components/schemas/AncestorPath'
         subfolders:
           type: array
           items:
@@ -192,6 +207,16 @@ components:
           type: string
           format: uuid
           nullable: true
+        parent_note_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: The note it is placed under, if any.
+        path:
+          $ref: '#/components/schemas/AncestorPath'
+        child_count:
+          type: integer
+          description: Live children (notes and links) directly under it.
         pinned:
           type: boolean
         tags:
@@ -346,6 +371,14 @@ components:
           type: string
           format: uuid
           nullable: true
+        parent_note_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: The note it is placed under, if any.
+        child_count:
+          type: integer
+          description: Live children (notes and links) directly under it.
         pinned:
           type: boolean
         tags:
@@ -385,6 +418,11 @@ components:
           type: string
           format: uuid
           nullable: true
+        parent_note_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: Place it under this note instead of in a folder (never both).
         tags:
           $ref: '#/components/schemas/TagNames'
       required:
@@ -414,6 +452,11 @@ components:
           type: string
           format: uuid
           nullable: true
+        parent_note_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: Place it under this note instead of in a folder (never both).
 
     LinkSummary:
       type: object
@@ -454,6 +497,11 @@ components:
           type: string
           format: uuid
           nullable: true
+        parent_note_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: The note it is placed under, if any.
         tags:
           $ref: '#/components/schemas/TagNames'
         created_at:
@@ -526,3 +574,33 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TagCount'
+
+    AncestorPath:
+      type: array
+      description: >
+        Where the item sits, from the root down to its direct parent (the item itself is not included). Folders and
+        notes can be mixed, e.g. folder, folder, note, note. Use it for breadcrumbs.
+      items:
+        type: object
+        properties:
+          type:
+            type: string
+            enum: [ folder, note ]
+          id:
+            type: string
+            format: uuid
+          title:
+            type: string
+            description: The folder name for folders, the title for notes.
+
+    NoteChildrenResponse:
+      type: object
+      properties:
+        notes:
+          type: array
+          items:
+            $ref: '#/components/schemas/NoteSummary'
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/LinkSummary'

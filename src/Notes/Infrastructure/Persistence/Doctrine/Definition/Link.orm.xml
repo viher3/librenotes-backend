@@ -13,12 +13,14 @@
         <field name="note" column="note" type="link_note" nullable="true"/>
         <field name="tags" column="tags" type="notes_tags" nullable="true"/>
         <field name="folderId" column="folder_id" type="folder_id" length="36" nullable="true"/>
+        <field name="parentNoteId" column="parent_note_id" type="note_id" length="36" nullable="true"/>
         <field name="ownerId" column="owner_id" type="notes_owner_id" length="36"/>
         <field name="createdAt" column="created_at" type="datetime_vo"/>
         <field name="updatedAt" column="updated_at" type="datetime_vo"/>
         <field name="deletedAt" column="deleted_at" type="datetime_vo" nullable="true"/>
         <indexes>
             <index name="idx_link_owner_folder" columns="owner_id,folder_id"/>
+            <index name="idx_link_owner_parent" columns="owner_id,parent_note_id"/>
             <index name="idx_link_owner_deleted" columns="owner_id,deleted_at"/>
         </indexes>
     </entity>

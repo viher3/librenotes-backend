@@ -8,9 +8,10 @@ use App\Core\Application\Command\TransactionalCommandHandler;
 use App\Notes\Domain\Exception\NoteNotFound;
 use App\Notes\Domain\Exception\NotInTrash;
 use App\Notes\Domain\Exception\ParentFolderInTrash;
+use App\Notes\Domain\Exception\ParentNoteInTrash;
 use App\Notes\Domain\Repository\FolderRepository;
 use App\Notes\Domain\Repository\NoteRepository;
-use App\Notes\Domain\Service\NoteAttachmentLifecycle;
+use App\Notes\Domain\Service\NoteTreeLifecycle;
 use App\Notes\Domain\ValueObject\OwnerId;
 
 class RestoreNoteHandler implements TransactionalCommandHandler
@@ -18,7 +19,7 @@ class RestoreNoteHandler implements TransactionalCommandHandler
     public function __construct(
         private NoteRepository $noteRepository,
         private FolderRepository $folderRepository,
-        private NoteAttachmentLifecycle $noteAttachments
+        private NoteTreeLifecycle $noteTree
     ) {
     }
 
@@ -43,9 +44,17 @@ class RestoreNoteHandler implements TransactionalCommandHandler
             }
         }
 
+        if ($note->getParentNoteId() !== null) {
+            $parent = $this->noteRepository->getById($note->getParentNoteId()->value());
+
+            if ($parent !== null && $parent->isDeleted()) {
+                throw new ParentNoteInTrash($parent->getId()->value());
+            }
+        }
+
         $note->restore();
 
         $this->noteRepository->save($note);
-        $this->noteAttachments->restore($note, $ownerId);
+        $this->noteTree->restore($note, $ownerId);
     }
 }

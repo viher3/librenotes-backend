@@ -16,7 +16,8 @@ readonly class ListLinksQuery implements Query
         public ?string $orderBy,
         public ?string $orderDirection,
         public ?int $page,
-        public ?int $size
+        public ?int $size,
+        public ?string $parentNoteId = null
     ) {
     }
 }

@@ -167,3 +167,8 @@ list_tags:
   path: /tags
   methods: GET
   controller: App\Notes\Infrastructure\Ui\Controllers\ListTagsController
+
+note_children:
+  path: /notes/{id}/children
+  methods: GET
+  controller: App\Notes\Infrastructure\Ui\Controllers\NoteChildrenController
