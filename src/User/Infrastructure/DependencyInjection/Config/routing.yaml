@@ -37,3 +37,13 @@ detail_user:
   path: /users/{id}
   methods: GET
   controller: App\User\Infrastructure\Ui\Controllers\DetailUserController
+
+current_user:
+  path: /me
+  methods: GET
+  controller: App\User\Infrastructure\Ui\Controllers\CurrentUserController
+
+update_current_user:
+  path: /me
+  methods: PATCH
+  controller: App\User\Infrastructure\Ui\Controllers\UpdateCurrentUserController

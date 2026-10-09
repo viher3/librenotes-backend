@@ -37,6 +37,19 @@ class LocalFileStorage implements FileStoragePort
         $this->filesystem->remove($this->absolutePath($storageKey));
     }
 
+    public function read(string $storageKey)
+    {
+        $path = $this->absolutePath($storageKey);
+        $stream = is_file($path) ? @fopen($path, 'rb') : false;
+
+        if ($stream === false) {
+            throw new class ('Stored file is missing or unreadable: ' . $storageKey) extends CriticalException {
+            };
+        }
+
+        return $stream;
+    }
+
     private function absolutePath(string $storageKey): string
     {
         return rtrim($this->storageDir, '/') . '/' . $storageKey;

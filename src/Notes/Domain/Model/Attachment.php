@@ -9,15 +9,18 @@ use App\Core\Domain\ValueObject\DateTimeValueObject;
 use App\Notes\Domain\ValueObject\AttachmentId;
 use App\Notes\Domain\ValueObject\FileName;
 use App\Notes\Domain\ValueObject\FileSizeBytes;
+use App\Notes\Domain\Exception\InvalidAttachmentLocation;
 use App\Notes\Domain\ValueObject\FolderId;
 use App\Notes\Domain\ValueObject\MimeType;
+use App\Notes\Domain\ValueObject\NoteId;
 use App\Notes\Domain\ValueObject\OwnerId;
 use App\Notes\Domain\ValueObject\StorageKey;
 
 class Attachment extends AggregateRoot
 {
     private AttachmentId $id;
-    private FolderId $folderId;
+    private ?FolderId $folderId;
+    private ?NoteId $noteId;
     private OwnerId $ownerId;
     private FileName $fileName;
     private MimeType $mimeType;
@@ -28,7 +31,8 @@ class Attachment extends AggregateRoot
 
     public function __construct(
         AttachmentId $id,
-        FolderId $folderId,
+        ?FolderId $folderId,
+        ?NoteId $noteId,
         OwnerId $ownerId,
         FileName $fileName,
         MimeType $mimeType,
@@ -36,8 +40,13 @@ class Attachment extends AggregateRoot
         StorageKey $storageKey,
         \DateTimeInterface $createdAt
     ) {
+        if ($folderId !== null && $noteId !== null) {
+            throw new InvalidAttachmentLocation();
+        }
+
         $this->id = $id;
         $this->folderId = $folderId;
+        $this->noteId = $noteId;
         $this->ownerId = $ownerId;
         $this->fileName = $fileName;
         $this->mimeType = $mimeType;
@@ -75,9 +84,14 @@ class Attachment extends AggregateRoot
         return $this->id;
     }
 
-    public function getFolderId(): FolderId
+    public function getFolderId(): ?FolderId
     {
         return $this->folderId;
+    }
+
+    public function getNoteId(): ?NoteId
+    {
+        return $this->noteId;
     }
 
     public function getOwnerId(): OwnerId

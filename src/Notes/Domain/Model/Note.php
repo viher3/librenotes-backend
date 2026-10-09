@@ -5,25 +5,31 @@ declare(strict_types=1);
 namespace App\Notes\Domain\Model;
 
 use App\Core\Domain\Aggregate\AggregateRoot;
+use App\Core\Domain\ValueObject\BoolValueObject;
 use App\Core\Domain\ValueObject\DateTimeValueObject;
 use App\Notes\Domain\ValueObject\FolderId;
 use App\Notes\Domain\ValueObject\NoteContent;
 use App\Notes\Domain\ValueObject\NoteId;
 use App\Notes\Domain\ValueObject\NoteTitle;
 use App\Notes\Domain\ValueObject\OwnerId;
+use App\Notes\Domain\ValueObject\Tags;
 
 class Note extends AggregateRoot
 {
     private const VALID_PARTIAL_UPDATE_FIELDS = [
         'title',
         'content',
+        'pinned',
+        'tags',
     ];
 
     private NoteId $id;
-    private NoteTitle $title;
-    private NoteContent $content;
+    protected NoteTitle $title;
+    protected NoteContent $content;
     private ?FolderId $folderId;
     private OwnerId $ownerId;
+    protected BoolValueObject $pinned;
+    protected Tags $tags;
     private DateTimeValueObject $createdAt;
     private DateTimeValueObject $updatedAt;
     private ?DateTimeValueObject $deletedAt = null;
@@ -34,13 +40,17 @@ class Note extends AggregateRoot
         NoteContent $content,
         ?FolderId $folderId,
         OwnerId $ownerId,
-        \DateTimeInterface $createdAt
+        \DateTimeInterface $createdAt,
+        bool $pinned = false,
+        ?Tags $tags = null
     ) {
         $this->id = $id;
         $this->title = $title;
         $this->content = $content;
         $this->folderId = $folderId;
         $this->ownerId = $ownerId;
+        $this->pinned = new BoolValueObject($pinned);
+        $this->tags = $tags ?? Tags::empty();
         $this->createdAt = new DateTimeValueObject($createdAt);
         $this->updatedAt = new DateTimeValueObject($createdAt);
     }
@@ -56,6 +66,8 @@ class Note extends AggregateRoot
         return match ($field) {
             'title' => new NoteTitle($value),
             'content' => new NoteContent($value),
+            'pinned' => new BoolValueObject($value),
+            'tags' => new Tags($value),
             default => $value,
         };
     }
@@ -103,6 +115,16 @@ class Note extends AggregateRoot
     public function getContent(): NoteContent
     {
         return $this->content;
+    }
+
+    public function isPinned(): bool
+    {
+        return $this->pinned->value();
+    }
+
+    public function getTags(): Tags
+    {
+        return $this->tags;
     }
 
     public function getFolderId(): ?FolderId

@@ -17,6 +17,7 @@ use App\User\Domain\ValueObject\HashedPassword;
 use App\User\Domain\ValueObject\PasswordRecoveryToken;
 use App\User\Domain\ValueObject\TokenVersion;
 use App\User\Domain\ValueObject\UserId;
+use App\User\Domain\ValueObject\UserLocale;
 use App\User\Domain\ValueObject\Username;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -31,6 +32,7 @@ class User extends AggregateRoot implements PasswordAuthenticatedUserInterface, 
         'email',
         'active',
         'emailValidated',
+        'locale',
     ];
 
     private UserId $id;
@@ -44,6 +46,7 @@ class User extends AggregateRoot implements PasswordAuthenticatedUserInterface, 
     protected EmailValueObject $email;
     protected BoolValueObject $emailValidated;
     protected Username $username;
+    protected UserLocale $locale;
     protected DateTimeValueObject $createdAt;
     protected BoolValueObject $active;
     protected ?DateTimeValueObject $lastLoginAt = null;
@@ -66,6 +69,7 @@ class User extends AggregateRoot implements PasswordAuthenticatedUserInterface, 
         $this->createdAt = new DateTimeValueObject($createdAt);
         $this->active = new BoolValueObject($active);
         $this->emailValidated = new BoolValueObject(false);
+        $this->locale = UserLocale::default();
         $this->tokenVersion = new TokenVersion(1);
         $this->lastLoginAt = $lastLoginAt !== null ? new DateTimeValueObject($lastLoginAt) : null;
 
@@ -102,6 +106,7 @@ class User extends AggregateRoot implements PasswordAuthenticatedUserInterface, 
             'username' => new Username($value),
             'email' => new EmailValueObject($value),
             'active', 'emailValidated' => new BoolValueObject($value),
+            'locale' => new UserLocale($value),
             default => $value,
         };
     }
@@ -216,6 +221,11 @@ class User extends AggregateRoot implements PasswordAuthenticatedUserInterface, 
     public function getUsername(): Username
     {
         return $this->username;
+    }
+
+    public function getLocale(): UserLocale
+    {
+        return $this->locale;
     }
 
     public function getEmail(): EmailValueObject

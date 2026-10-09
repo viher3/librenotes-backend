@@ -3,19 +3,23 @@ components:
     ResponseOk:
       type: object
       properties:
-        _result: {}
+        _result:
+          description: Operation result (shape depends on the endpoint)
+          nullable: true
         _info:
           $ref: '#/components/schemas/Info'
         _error:
           type: array
-          items: []
+          items:
+            type: object
           example: []
     ResponseNotFound:
       type: object
       properties:
         _result:
           type: array
-          items: []
+          items:
+            type: object
           example: []
         _info:
           $ref: '#/components/schemas/Info'
@@ -26,7 +30,8 @@ components:
       properties:
         _result:
           type: array
-          items: []
+          items:
+            type: object
           example: []
         _info:
           $ref: '#/components/schemas/Info'
@@ -43,7 +48,8 @@ components:
           type: string
         params:
           type: array
-          items: {}
+          items:
+            type: object
         time:
           type: number
         status:
@@ -99,6 +105,29 @@ components:
           type: string
         action:
           type: string
+
+    ApiError:
+      type: object
+      description: >
+        Body of every error response. `code` is a stable identifier (e.g. `security.bad_credentials`,
+        `note.not_found`) meant to be mapped to a translation key by clients.
+      properties:
+        code:
+          type: string
+          example: note.not_found
+        message:
+          type: string
+        params:
+          type: array
+          items:
+            type: object
+        status:
+          type: integer
+          example: 404
+      required:
+        - code
+        - message
+        - status
 
     FiltersParameter:
       type: string

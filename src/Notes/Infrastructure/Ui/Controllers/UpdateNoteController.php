@@ -6,6 +6,8 @@ namespace App\Notes\Infrastructure\Ui\Controllers;
 
 use App\Core\Infrastructure\Framework\Symfony\Controller\BaseApiController;
 use App\Notes\Application\UpdateNote\UpdateNoteCommand;
+use App\Core\Domain\Exception\InvalidPartialUpdateFieldsException;
+use App\Notes\Domain\Exception\InvalidTag;
 use App\Notes\Domain\Exception\NoteNotFound;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,8 +15,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UpdateNoteController extends BaseApiController
 {
-    private const string NIL_UUID = '00000000-0000-0000-0000-000000000000';
-
     public function __invoke(string $id, Request $request): JsonResponse
     {
         if ($badResponse = $this->validateInputData($this->getValidationSchema(), $request)) {
@@ -27,7 +27,7 @@ class UpdateNoteController extends BaseApiController
             new UpdateNoteCommand(
                 id: $id,
                 fields: $body,
-                ownerId: $this->getUser()?->getUserIdentifier() ?? self::NIL_UUID
+                ownerId: $this->currentUserId()
             )
         );
 
@@ -47,6 +47,13 @@ class UpdateNoteController extends BaseApiController
                 },
                 "content": {
                   "type": "string"
+                },
+                "pinned": {
+                  "type": "boolean"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {"type": "string"}
                 }
               }
             }
@@ -57,6 +64,8 @@ class UpdateNoteController extends BaseApiController
     {
         return [
             NoteNotFound::class => Response::HTTP_NOT_FOUND,
+            InvalidTag::class => Response::HTTP_UNPROCESSABLE_ENTITY,
+            InvalidPartialUpdateFieldsException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
         ];
     }
 }

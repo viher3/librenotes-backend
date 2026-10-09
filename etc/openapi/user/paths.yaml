@@ -1,5 +1,56 @@
 paths:
 
+  /me:
+
+    get:
+      summary: Current user profile
+      description: The user identified by the access token.
+      security:
+        - Bearer: [ ]
+      tags:
+        - User
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentUserResponse'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+    patch:
+      summary: Update the current user's username and/or UI language
+      security:
+        - Bearer: [ ]
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCurrentUserRequest'
+      responses:
+        '200':
+          description: Updated
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
   /signup:
     post:
       summary: Public self-registration

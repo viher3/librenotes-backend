@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace App\Notes\Application\PermanentlyDeleteNote;
 
-use App\Core\Application\Command\CommandHandler;
+use App\Core\Application\Command\TransactionalCommandHandler;
 use App\Notes\Domain\Exception\NoteNotFound;
 use App\Notes\Domain\Exception\NotInTrash;
 use App\Notes\Domain\Repository\NoteRepository;
+use App\Notes\Domain\Service\NoteAttachmentLifecycle;
 use App\Notes\Domain\ValueObject\OwnerId;
 
-class PermanentlyDeleteNoteHandler implements CommandHandler
+class PermanentlyDeleteNoteHandler implements TransactionalCommandHandler
 {
     public function __construct(
-        private NoteRepository $noteRepository
+        private NoteRepository $noteRepository,
+        private NoteAttachmentLifecycle $noteAttachments
     ) {
     }
 
@@ -30,6 +32,7 @@ class PermanentlyDeleteNoteHandler implements CommandHandler
             throw new NotInTrash($command->id);
         }
 
+        $this->noteAttachments->deletePermanently($note, $ownerId);
         $this->noteRepository->delete($note);
     }
 }

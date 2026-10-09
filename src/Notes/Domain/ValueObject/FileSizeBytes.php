@@ -9,6 +9,8 @@ use App\Core\Domain\ValueObject\IntValueObject;
 
 class FileSizeBytes extends IntValueObject
 {
+    public const int MAX_ATTACHMENT_BYTES = 50 * 1024 * 1024;
+
     public function __construct(int $value)
     {
         if ($value < 0) {

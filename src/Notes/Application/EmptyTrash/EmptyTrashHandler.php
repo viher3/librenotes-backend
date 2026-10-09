@@ -8,8 +8,10 @@ use App\Core\Application\Command\TransactionalCommandHandler;
 use App\Notes\Domain\Model\Folder;
 use App\Notes\Domain\Repository\AttachmentRepository;
 use App\Notes\Domain\Repository\FolderRepository;
+use App\Notes\Domain\Repository\LinkRepository;
 use App\Notes\Domain\Repository\NoteRepository;
 use App\Notes\Domain\Service\FileStoragePort;
+use App\Notes\Domain\Service\NoteAttachmentLifecycle;
 use App\Notes\Domain\ValueObject\OwnerId;
 
 /**
@@ -22,8 +24,10 @@ class EmptyTrashHandler implements TransactionalCommandHandler
     public function __construct(
         private FolderRepository $folderRepository,
         private NoteRepository $noteRepository,
+        private LinkRepository $linkRepository,
         private AttachmentRepository $attachmentRepository,
-        private FileStoragePort $fileStorage
+        private FileStoragePort $fileStorage,
+        private NoteAttachmentLifecycle $noteAttachments
     ) {
     }
 
@@ -41,7 +45,12 @@ class EmptyTrashHandler implements TransactionalCommandHandler
         }
 
         foreach ($this->noteRepository->findTrashed($ownerId) as $note) {
+            $this->noteAttachments->deletePermanently($note, $ownerId);
             $this->noteRepository->delete($note);
+        }
+
+        foreach ($this->linkRepository->findTrashed($ownerId) as $link) {
+            $this->linkRepository->delete($link);
         }
 
         foreach ($this->attachmentRepository->findTrashed($ownerId) as $attachment) {
@@ -57,7 +66,12 @@ class EmptyTrashHandler implements TransactionalCommandHandler
         }
 
         foreach ($this->noteRepository->findAllByFolder($folder->getId(), $ownerId) as $note) {
+            $this->noteAttachments->deletePermanently($note, $ownerId);
             $this->noteRepository->delete($note);
+        }
+
+        foreach ($this->linkRepository->findAllByFolder($folder->getId(), $ownerId) as $link) {
+            $this->linkRepository->delete($link);
         }
 
         foreach ($this->attachmentRepository->findAllByFolder($folder->getId(), $ownerId) as $attachment) {

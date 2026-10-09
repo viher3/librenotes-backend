@@ -81,4 +81,4 @@ services:
 
     App\Notes\Infrastructure\Storage\LocalFileStorage:
         arguments:
-            $storageDir: '%kernel.project_dir%/var/storage/attachments'
+            $storageDir: '%notes.attachments_dir%'

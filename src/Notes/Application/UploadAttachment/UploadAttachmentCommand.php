@@ -10,7 +10,8 @@ readonly class UploadAttachmentCommand implements Command
 {
     public function __construct(
         public string $id,
-        public string $folderId,
+        public ?string $folderId,
+        public ?string $noteId,
         public string $ownerId,
         public string $originalFileName,
         public string $mimeType,

@@ -29,6 +29,13 @@ interface NoteRepository
     public function findAllByFolder(?FolderId $folderId, OwnerId $ownerId): array;
 
     /**
+     * One page of the owner's notes that are not in trash, plus the total number of matches.
+     *
+     * @return array{notes: Note[], total: int}
+     */
+    public function findPage(NoteListCriteria $criteria): array;
+
+    /**
      * @return Note[]
      */
     public function findTrashed(OwnerId $ownerId): array;

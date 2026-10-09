@@ -12,6 +12,12 @@
         <field name="content" column="content" type="note_content"/>
         <field name="folderId" column="folder_id" type="folder_id" length="36" nullable="true"/>
         <field name="ownerId" column="owner_id" type="notes_owner_id" length="36"/>
+        <field name="pinned" column="pinned" type="bool_vo">
+            <options>
+                <option name="default">0</option>
+            </options>
+        </field>
+        <field name="tags" column="tags" type="notes_tags" nullable="true"/>
         <field name="createdAt" column="created_at" type="datetime_vo"/>
         <field name="updatedAt" column="updated_at" type="datetime_vo"/>
         <field name="deletedAt" column="deleted_at" type="datetime_vo" nullable="true"/>

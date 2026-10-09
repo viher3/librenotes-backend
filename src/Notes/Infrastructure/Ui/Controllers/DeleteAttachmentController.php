@@ -16,14 +16,12 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class DeleteAttachmentController extends BaseApiController
 {
-    private const string NIL_UUID = '00000000-0000-0000-0000-000000000000';
-
     public function __invoke(string $id): JsonResponse
     {
         $this->dispatchTransactional(
             new MoveAttachmentToTrashCommand(
                 id: $id,
-                ownerId: $this->getUser()?->getUserIdentifier() ?? self::NIL_UUID
+                ownerId: $this->currentUserId()
             )
         );
 

@@ -7,6 +7,7 @@ namespace App\Notes\Infrastructure\Ui\Controllers;
 use App\Core\Infrastructure\Framework\Symfony\Controller\BaseApiController;
 use App\Notes\Application\CreateNote\CreateNoteCommand;
 use App\Notes\Domain\Exception\FolderNotFound;
+use App\Notes\Domain\Exception\InvalidTag;
 use App\Notes\Domain\ValueObject\NoteId;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,8 +15,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CreateNoteController extends BaseApiController
 {
-    private const string NIL_UUID = '00000000-0000-0000-0000-000000000000';
-
     public function __invoke(Request $request): JsonResponse
     {
         if ($badResponse = $this->validateInputData($this->getValidationSchema(), $request)) {
@@ -31,7 +30,9 @@ class CreateNoteController extends BaseApiController
                 title: $body['title'],
                 content: $body['content'] ?? '',
                 folderId: $body['folder_id'] ?? null,
-                ownerId: $this->getUser()?->getUserIdentifier() ?? self::NIL_UUID
+                ownerId: $this->currentUserId(),
+                pinned: (bool) ($body['pinned'] ?? false),
+                tags: $body['tags'] ?? []
             )
         );
 
@@ -55,6 +56,13 @@ class CreateNoteController extends BaseApiController
                 "folder_id": {
                   "type": ["string", "null"],
                   "format": "uuid"
+                },
+                "pinned": {
+                  "type": "boolean"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {"type": "string"}
                 }
               },
               "required": ["title"]
@@ -66,6 +74,7 @@ class CreateNoteController extends BaseApiController
     {
         return [
             FolderNotFound::class => Response::HTTP_UNPROCESSABLE_ENTITY,
+            InvalidTag::class => Response::HTTP_UNPROCESSABLE_ENTITY,
         ];
     }
 }

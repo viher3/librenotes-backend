@@ -61,6 +61,9 @@ components:
         emailValidated:
           type: boolean
           default: true
+        locale:
+          type: string
+          enum: [ en, es ]
 
     UserDetailResponse:
       type: object
@@ -85,6 +88,9 @@ components:
         emailValidated:
           type: boolean
           default: true
+        locale:
+          type: string
+          enum: [ en, es ]
         createdAt:
           type: datetime
         lastLoginAt:
@@ -135,3 +141,46 @@ components:
       required:
         - currentPassword
         - newPassword
+
+    CurrentUserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        username:
+          type: string
+        locale:
+          type: string
+          enum: [ en, es ]
+          description: UI language preference
+        roles:
+          type: array
+          items:
+            type: string
+        active:
+          type: boolean
+        email_validated:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        last_login_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    UpdateCurrentUserRequest:
+      type: object
+      description: Only these fields are editable through `/me`; any other field is ignored.
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 20
+        locale:
+          type: string
+          enum: [ en, es ]

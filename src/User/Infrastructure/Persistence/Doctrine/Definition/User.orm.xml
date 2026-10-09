@@ -10,6 +10,11 @@
         <id name="id" type="user_id" column="id" length="36"/>
         <field name="username" column="username" type="username"/>
         <field name="email" column="email" unique="true" type="user_email"/>
+        <field name="locale" column="locale" type="user_locale" length="5">
+            <options>
+                <option name="default">en</option>
+            </options>
+        </field>
         <field name="password" column="password" type="hashed_password"/>
         <field name="active" column="is_active" type="bool_vo"/>
         <field name="emailValidated" column="is_email_validated" type="bool_vo"/>

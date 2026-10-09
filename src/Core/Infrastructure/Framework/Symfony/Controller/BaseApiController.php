@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use function Lambdish\Phunctional\each;
 
 abstract class BaseApiController extends AbstractController
@@ -65,6 +66,20 @@ abstract class BaseApiController extends AbstractController
     public function dispatchTransactional(Command $command) : ?CommandResponse
     {
         return $this->transactionalCommandBus->__invoke($command);
+    }
+
+    /**
+     * Identifier of the authenticated user. Routes behind the firewall always have one; this guards the
+     * rest instead of silently falling back to a placeholder identity.
+     */
+    protected function currentUserId(): string
+    {
+        $user = $this->getUser();
+        if ($user === null) {
+            throw new AccessDeniedException();
+        }
+
+        return $user->getUserIdentifier();
     }
 
     /**

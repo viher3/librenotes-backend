@@ -9,19 +9,18 @@ use App\Notes\Application\RestoreAttachment\RestoreAttachmentCommand;
 use App\Notes\Domain\Exception\AttachmentNotFound;
 use App\Notes\Domain\Exception\NotInTrash;
 use App\Notes\Domain\Exception\ParentFolderInTrash;
+use App\Notes\Domain\Exception\ParentNoteInTrash;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 class RestoreAttachmentController extends BaseApiController
 {
-    private const string NIL_UUID = '00000000-0000-0000-0000-000000000000';
-
     public function __invoke(string $id): JsonResponse
     {
         $this->dispatchTransactional(
             new RestoreAttachmentCommand(
                 id: $id,
-                ownerId: $this->getUser()?->getUserIdentifier() ?? self::NIL_UUID
+                ownerId: $this->currentUserId()
             )
         );
 
@@ -34,6 +33,7 @@ class RestoreAttachmentController extends BaseApiController
             AttachmentNotFound::class => Response::HTTP_NOT_FOUND,
             NotInTrash::class => Response::HTTP_CONFLICT,
             ParentFolderInTrash::class => Response::HTTP_CONFLICT,
+            ParentNoteInTrash::class => Response::HTTP_CONFLICT,
         ];
     }
 }

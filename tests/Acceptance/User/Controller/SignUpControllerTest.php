@@ -50,6 +50,18 @@ class SignUpControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(400);
     }
 
+    public function testSignUpWithEmptyBodyReturnsBadRequest(): void
+    {
+        $client = static::createClient();
+
+        $client->request('POST', '/signup', [], [], ['CONTENT_TYPE' => 'application/json'], '{}');
+
+        $this->assertResponseStatusCodeSame(400);
+        $errors = json_decode($client->getResponse()->getContent(), true)['errors'];
+        $this->assertContains('[email] The property email is required', $errors);
+        $this->assertContains('[password] The property password is required', $errors);
+    }
+
     public function testSignUpWithDuplicateEmailReturnsConflict(): void
     {
         $client = static::createClient();

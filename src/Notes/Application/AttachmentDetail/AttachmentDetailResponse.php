@@ -19,11 +19,12 @@ class AttachmentDetailResponse implements QueryResponse
     {
         return [
             'id' => $this->attachment->getId()->value(),
-            'folderId' => $this->attachment->getFolderId()->value(),
-            'fileName' => $this->attachment->getFileName()->value(),
-            'mimeType' => $this->attachment->getMimeType()->value(),
-            'sizeBytes' => $this->attachment->getSizeBytes()->value(),
-            'createdAt' => $this->attachment->getCreatedAt()->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),
+            'folder_id' => $this->attachment->getFolderId()?->value(),
+            'note_id' => $this->attachment->getNoteId()?->value(),
+            'file_name' => $this->attachment->getFileName()->value(),
+            'mime_type' => $this->attachment->getMimeType()->value(),
+            'size_bytes' => $this->attachment->getSizeBytes()->value(),
+            'created_at' => $this->attachment->getCreatedAt()->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),
         ];
     }
 }

@@ -12,3 +12,8 @@ parameters:
     jwt.key.ttl: '900' # 15 minutes in seconds
     user.send_activation_email: '%env(bool:USER_SEND_ACTIVATION_EMAIL)%'
     app.frontend_url: '%env(resolve:FRONTEND_URL)%'
+    notes.attachments_dir: '%kernel.project_dir%/var/storage/attachments'
+
+when@test:
+    parameters:
+        notes.attachments_dir: '%kernel.project_dir%/var/storage/test/attachments'

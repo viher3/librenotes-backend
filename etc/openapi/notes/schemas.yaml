@@ -1,0 +1,528 @@
+components:
+  schemas:
+
+    CreatedResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+      required:
+        - id
+
+    CreateFolderRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        parent_folder_id:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+        - name
+
+    RenameFolderRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+      required:
+        - name
+
+    MoveFolderRequest:
+      type: object
+      properties:
+        parent_folder_id:
+          type: string
+          format: uuid
+          nullable: true
+
+    MoveNoteRequest:
+      type: object
+      properties:
+        folder_id:
+          type: string
+          format: uuid
+          nullable: true
+
+    CreateNoteRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        content:
+          type: string
+          description: Markdown
+        folder_id:
+          type: string
+          format: uuid
+          nullable: true
+        pinned:
+          type: boolean
+          default: false
+        tags:
+          $ref: '#/components/schemas/TagNames'
+      required:
+        - title
+
+    UpdateNoteRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        content:
+          type: string
+          description: Markdown
+        pinned:
+          type: boolean
+        tags:
+          $ref: '#/components/schemas/TagNames'
+
+    UploadAttachmentRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+      required:
+        - file
+
+    FolderSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    NoteSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        pinned:
+          type: boolean
+        tags:
+          $ref: '#/components/schemas/TagNames'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    AttachmentSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        file_name:
+          type: string
+        mime_type:
+          type: string
+        size_bytes:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    FolderContentsResponse:
+      type: object
+      properties:
+        folder:
+          type: object
+          nullable: true
+          description: The listed folder; null at the root level.
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+            parent_folder_id:
+              type: string
+              format: uuid
+              nullable: true
+        subfolders:
+          type: array
+          items:
+            $ref: '#/components/schemas/FolderSummary'
+        notes:
+          type: array
+          items:
+            $ref: '#/components/schemas/NoteSummary'
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/LinkSummary'
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttachmentSummary'
+
+    NoteDetailResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        content:
+          type: string
+          description: Markdown
+        folder_id:
+          type: string
+          format: uuid
+          nullable: true
+        pinned:
+          type: boolean
+        tags:
+          $ref: '#/components/schemas/TagNames'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        attachments:
+          type: array
+          description: Attachments bound to the note (not in the trash)
+          items:
+            $ref: '#/components/schemas/AttachmentSummary'
+
+    AttachmentDetailResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        folder_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: Set when the file lives in a folder; null for note attachments
+        note_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: Set when the file is bound to a note; null for folder attachments
+        file_name:
+          type: string
+        mime_type:
+          type: string
+        size_bytes:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    TrashResponse:
+      type: object
+      properties:
+        folders:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              name:
+                type: string
+              parent_folder_id:
+                type: string
+                format: uuid
+                nullable: true
+              deleted_at:
+                type: string
+                format: date-time
+        notes:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              title:
+                type: string
+              folder_id:
+                type: string
+                format: uuid
+                nullable: true
+              deleted_at:
+                type: string
+                format: date-time
+        links:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              title:
+                type: string
+              url:
+                type: string
+              folder_id:
+                type: string
+                format: uuid
+                nullable: true
+              deleted_at:
+                type: string
+                format: date-time
+        attachments:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              file_name:
+                type: string
+              folder_id:
+                type: string
+                format: uuid
+                nullable: true
+              note_id:
+                type: string
+                format: uuid
+                nullable: true
+              deleted_at:
+                type: string
+                format: date-time
+
+    TagNames:
+      type: array
+      description: >
+        Free-form labels. Names are trimmed and lower-cased, duplicates collapse; at most 20 tags of 1-50 characters.
+      maxItems: 20
+      items:
+        type: string
+        minLength: 1
+        maxLength: 50
+
+    PageMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+        size:
+          type: integer
+        total:
+          type: integer
+        last_page:
+          type: integer
+
+    NoteListItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        folder_id:
+          type: string
+          format: uuid
+          nullable: true
+        pinned:
+          type: boolean
+        tags:
+          $ref: '#/components/schemas/TagNames'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    NoteListResponse:
+      type: object
+      properties:
+        meta:
+          $ref: '#/components/schemas/PageMeta'
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/NoteListItem'
+
+    CreateLinkRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        url:
+          type: string
+          maxLength: 2048
+          description: Absolute http or https URL
+        note:
+          type: string
+          nullable: true
+        folder_id:
+          type: string
+          format: uuid
+          nullable: true
+        tags:
+          $ref: '#/components/schemas/TagNames'
+      required:
+        - title
+        - url
+
+    UpdateLinkRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        url:
+          type: string
+          maxLength: 2048
+        note:
+          type: string
+          nullable: true
+        tags:
+          $ref: '#/components/schemas/TagNames'
+
+    MoveLinkRequest:
+      type: object
+      properties:
+        folder_id:
+          type: string
+          format: uuid
+          nullable: true
+
+    LinkSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        url:
+          type: string
+        note:
+          type: string
+          nullable: true
+        tags:
+          $ref: '#/components/schemas/TagNames'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    LinkDetailResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        url:
+          type: string
+        note:
+          type: string
+          nullable: true
+        folder_id:
+          type: string
+          format: uuid
+          nullable: true
+        tags:
+          $ref: '#/components/schemas/TagNames'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    LinkListResponse:
+      type: object
+      properties:
+        meta:
+          $ref: '#/components/schemas/PageMeta'
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/LinkDetailResponse'
+
+    SearchResult:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [ note, link ]
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        snippet:
+          type: string
+          description: Plain-text excerpt around the first match (may start/end with an ellipsis)
+        folder_id:
+          type: string
+          format: uuid
+          nullable: true
+        tags:
+          $ref: '#/components/schemas/TagNames'
+        updated_at:
+          type: string
+          format: date-time
+        url:
+          type: string
+          nullable: true
+          description: Only for links
+
+    SearchResponse:
+      type: object
+      properties:
+        meta:
+          $ref: '#/components/schemas/PageMeta'
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchResult'
+
+    TagCount:
+      type: object
+      properties:
+        name:
+          type: string
+        count:
+          type: integer
+
+    TagListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagCount'

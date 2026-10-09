@@ -20,8 +20,21 @@ class RequestParamsJsonValidator
     {
         $jsonSchemaObject = json_decode($this->jsonSchema);
 
+        // The request body is decoded to an associative PHP array, which json-schema reads as a JSON
+        // *array*: with `"type": "array"` (the convention used by the controllers' schemas) keywords such
+        // as `required` are silently ignored. Schemas that describe fields (`properties`) are therefore
+        // validated against the body as a JSON *object*, which is what they mean.
+        if (is_object($jsonSchemaObject) && isset($jsonSchemaObject->properties)) {
+            if (($jsonSchemaObject->type ?? null) === 'array') {
+                $jsonSchemaObject->type = 'object';
+            }
+            $data = $params === [] ? new \stdClass() : json_decode((string) json_encode($params));
+        } else {
+            $data = $params;
+        }
+
         $jsonValidator = new Validator();
-        $jsonValidator->validate($params, $jsonSchemaObject, Constraint::CHECK_MODE_APPLY_DEFAULTS);
+        $jsonValidator->validate($data, $jsonSchemaObject, Constraint::CHECK_MODE_APPLY_DEFAULTS);
 
         if(!$jsonValidator->isValid()){
             foreach ($jsonValidator->getErrors() as $error) {

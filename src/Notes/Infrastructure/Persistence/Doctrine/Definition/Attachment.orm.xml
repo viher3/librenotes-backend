@@ -8,7 +8,8 @@
             repository-class="App\Notes\Infrastructure\Persistence\Doctrine\Repository\DoctrineAttachmentRepository"
     >
         <id name="id" type="attachment_id" column="id" length="36"/>
-        <field name="folderId" column="folder_id" type="folder_id" length="36"/>
+        <field name="folderId" column="folder_id" type="folder_id" length="36" nullable="true"/>
+        <field name="noteId" column="note_id" type="note_id" length="36" nullable="true"/>
         <field name="ownerId" column="owner_id" type="notes_owner_id" length="36"/>
         <field name="fileName" column="file_name" type="attachment_file_name"/>
         <field name="mimeType" column="mime_type" type="attachment_mime_type"/>
@@ -18,6 +19,7 @@
         <field name="deletedAt" column="deleted_at" type="datetime_vo" nullable="true"/>
         <indexes>
             <index name="idx_attachment_owner_folder" columns="owner_id,folder_id"/>
+            <index name="idx_attachment_owner_note" columns="owner_id,note_id"/>
             <index name="idx_attachment_owner_deleted" columns="owner_id,deleted_at"/>
         </indexes>
     </entity>

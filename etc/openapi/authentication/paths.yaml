@@ -4,6 +4,10 @@ paths:
 
     post:
       summary: User authentication
+      description: >
+        Exchanges email and password for a short-lived access token (JWT, 15 minutes, sent later as
+        `Authorization: Bearer <accessToken>`) and a refresh token used to obtain new pairs through
+        `PUT /token-renew`. Accounts that registered through `POST /signup` must be activated first.
       tags:
         - Authentication
       requestBody:
@@ -15,15 +19,44 @@ paths:
       responses:
         '200':
           description: Success
-        '500':
-          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPairResponse'
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Bad credentials (`security.bad_credentials`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: The account is not active yet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: Too many attempts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
 
   /token-renew:
 
     put:
-      summary: Renew JWT token
-      security:
-        - Bearer: [ ]
+      summary: Renew the token pair
+      description: >
+        Exchanges a valid refresh token for a new access token **and a new refresh token**. Refresh tokens are
+        single-use (rotated): the one sent is revoked, and re-using a revoked token revokes every active token
+        of the user. No `Authorization` header is needed. Clients should share a single in-flight renewal
+        between concurrent requests.
       tags:
         - Authentication
       requestBody:
@@ -31,24 +64,36 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                token:
-                  type: string
+              $ref: '#/components/schemas/RefreshTokenRequest'
       responses:
         '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RenewTokenResponse'
-        '500':
-          description: Internal server error
+                $ref: '#/components/schemas/TokenPairResponse'
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Invalid, revoked or expired refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: Too many attempts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
 
     delete:
       summary: Logout
-      security:
-        - Bearer: [ ]
+      description: Revokes the given refresh token. Idempotent; unknown or already revoked tokens also return 200.
       tags:
         - Authentication
       requestBody:
@@ -56,12 +101,13 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                token:
-                  type: string
+              $ref: '#/components/schemas/RefreshTokenRequest'
       responses:
         '200':
           description: Success
-        '500':
-          description: Internal server error
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'

@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace App\User\Infrastructure\Ui\Controllers;
 
 use App\Core\Infrastructure\Framework\Symfony\Controller\BaseApiController;
+use App\Core\Domain\Exception\InvalidPartialUpdateFieldsException;
 use App\User\Application\Update\UpdateUserCommand;
+use App\User\Domain\Exception\UnsupportedUserLocale;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class UpdateUserController extends BaseApiController
 {
@@ -45,15 +48,21 @@ class UpdateUserController extends BaseApiController
                   "type": "string",
                   "minLength": 3,
                   "maxLength": 20
+                },
+                "locale": {
+                  "type": "string",
+                  "enum": ["en", "es"]
                 }
-              },
-              "required": ["password"]
+              }
             }
             JSON;
     }
 
     protected function exceptions(): array
     {
-        return [];
+        return [
+            UnsupportedUserLocale::class => Response::HTTP_UNPROCESSABLE_ENTITY,
+            InvalidPartialUpdateFieldsException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
+        ];
     }
 }

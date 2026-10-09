@@ -52,7 +52,7 @@ class ChangeUserPasswordController extends BaseApiController
                   "maxLength": 20
                 }
               },
-              "required": ["currentPassword, newPassword"]
+              "required": ["currentPassword", "newPassword"]
             }
             JSON;
     }

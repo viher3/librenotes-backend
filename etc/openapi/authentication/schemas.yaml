@@ -10,12 +10,28 @@ components:
         password:
           type: string
           format: password
+          minLength: 8
+      required:
+        - email
+        - password
 
-    RenewTokenResponse:
+    RefreshTokenRequest:
       type: object
       properties:
-        data:
-          type: object
-          properties:
-            token:
-              type: string
+        token:
+          type: string
+          description: The refresh token returned by `POST /login` or `PUT /token-renew`
+      required:
+        - token
+
+    TokenPairResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: 'JWT whose payload carries the user id (`id`), valid for 15 minutes'
+        refreshToken:
+          type: string
+      required:
+        - accessToken
+        - refreshToken

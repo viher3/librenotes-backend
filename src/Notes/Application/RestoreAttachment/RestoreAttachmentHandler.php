@@ -8,15 +8,18 @@ use App\Core\Application\Command\TransactionalCommandHandler;
 use App\Notes\Domain\Exception\AttachmentNotFound;
 use App\Notes\Domain\Exception\NotInTrash;
 use App\Notes\Domain\Exception\ParentFolderInTrash;
+use App\Notes\Domain\Exception\ParentNoteInTrash;
 use App\Notes\Domain\Repository\AttachmentRepository;
 use App\Notes\Domain\Repository\FolderRepository;
+use App\Notes\Domain\Repository\NoteRepository;
 use App\Notes\Domain\ValueObject\OwnerId;
 
 class RestoreAttachmentHandler implements TransactionalCommandHandler
 {
     public function __construct(
         private AttachmentRepository $attachmentRepository,
-        private FolderRepository $folderRepository
+        private FolderRepository $folderRepository,
+        private NoteRepository $noteRepository
     ) {
     }
 
@@ -33,10 +36,20 @@ class RestoreAttachmentHandler implements TransactionalCommandHandler
             throw new NotInTrash($command->id);
         }
 
-        $folder = $this->folderRepository->getById($attachment->getFolderId()->value());
+        if ($attachment->getNoteId() !== null) {
+            $note = $this->noteRepository->getById($attachment->getNoteId()->value());
 
-        if ($folder !== null && $folder->isDeleted()) {
-            throw new ParentFolderInTrash($folder->getId()->value());
+            if ($note !== null && $note->isDeleted()) {
+                throw new ParentNoteInTrash($note->getId()->value());
+            }
+        }
+
+        if ($attachment->getFolderId() !== null) {
+            $folder = $this->folderRepository->getById($attachment->getFolderId()->value());
+
+            if ($folder !== null && $folder->isDeleted()) {
+                throw new ParentFolderInTrash($folder->getId()->value());
+            }
         }
 
         $attachment->restore();

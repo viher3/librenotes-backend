@@ -15,6 +15,7 @@ use App\Notes\Domain\ValueObject\NoteContent;
 use App\Notes\Domain\ValueObject\NoteId;
 use App\Notes\Domain\ValueObject\NoteTitle;
 use App\Notes\Domain\ValueObject\OwnerId;
+use App\Notes\Domain\ValueObject\Tags;
 
 class CreateNoteHandler implements TransactionalCommandHandler
 {
@@ -45,7 +46,9 @@ class CreateNoteHandler implements TransactionalCommandHandler
             content: new NoteContent($command->content),
             folderId: $folderId,
             ownerId: $ownerId,
-            createdAt: $this->dateTimeProvider->now()
+            createdAt: $this->dateTimeProvider->now(),
+            pinned: $command->pinned,
+            tags: new Tags($command->tags)
         );
 
         $this->noteRepository->save($note);

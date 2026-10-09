@@ -7,6 +7,7 @@ namespace App\Notes\Application\FolderContents;
 use App\Core\Application\Query\QueryResponse;
 use App\Notes\Domain\Model\Attachment;
 use App\Notes\Domain\Model\Folder;
+use App\Notes\Domain\Model\Link;
 use App\Notes\Domain\Model\Note;
 use App\Shared\Domain\Time\Date;
 
@@ -15,12 +16,14 @@ class FolderContentsResponse implements QueryResponse
     /**
      * @param Folder[] $subfolders
      * @param Note[] $notes
+     * @param Link[] $links
      * @param Attachment[] $attachments
      */
     public function __construct(
         private ?Folder $folder,
         private array $subfolders,
         private array $notes,
+        private array $links,
         private array $attachments
     ) {
     }
@@ -31,13 +34,13 @@ class FolderContentsResponse implements QueryResponse
             'folder' => $this->folder ? [
                 'id' => $this->folder->getId()->value(),
                 'name' => $this->folder->getName()->value(),
-                'parentFolderId' => $this->folder->getParentFolderId()?->value(),
+                'parent_folder_id' => $this->folder->getParentFolderId()?->value(),
             ] : null,
             'subfolders' => array_map(
                 static fn (Folder $folder) => [
                     'id' => $folder->getId()->value(),
                     'name' => $folder->getName()->value(),
-                    'createdAt' => $folder->getCreatedAt()->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),
+                    'created_at' => $folder->getCreatedAt()->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),
                 ],
                 $this->subfolders
             ),
@@ -45,18 +48,32 @@ class FolderContentsResponse implements QueryResponse
                 static fn (Note $note) => [
                     'id' => $note->getId()->value(),
                     'title' => $note->getTitle()->value(),
-                    'createdAt' => $note->getCreatedAt()->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),
-                    'updatedAt' => $note->getUpdatedAt()->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),
+                    'pinned' => $note->isPinned(),
+                    'tags' => $note->getTags()->names(),
+                    'created_at' => $note->getCreatedAt()->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),
+                    'updated_at' => $note->getUpdatedAt()->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),
                 ],
                 $this->notes
+            ),
+            'links' => array_map(
+                static fn (Link $link) => [
+                    'id' => $link->getId()->value(),
+                    'title' => $link->getTitle()->value(),
+                    'url' => $link->getUrl()->value(),
+                    'note' => $link->getNote()?->value(),
+                    'tags' => $link->getTags()->names(),
+                    'created_at' => $link->getCreatedAt()->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),
+                    'updated_at' => $link->getUpdatedAt()->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),
+                ],
+                $this->links
             ),
             'attachments' => array_map(
                 static fn (Attachment $attachment) => [
                     'id' => $attachment->getId()->value(),
-                    'fileName' => $attachment->getFileName()->value(),
-                    'mimeType' => $attachment->getMimeType()->value(),
-                    'sizeBytes' => $attachment->getSizeBytes()->value(),
-                    'createdAt' => $attachment->getCreatedAt()->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),
+                    'file_name' => $attachment->getFileName()->value(),
+                    'mime_type' => $attachment->getMimeType()->value(),
+                    'size_bytes' => $attachment->getSizeBytes()->value(),
+                    'created_at' => $attachment->getCreatedAt()->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),
                 ],
                 $this->attachments
             ),

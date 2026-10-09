@@ -23,6 +23,7 @@ class DetailUserResponse implements QueryResponse
             'createdAt' => $this->user->getCreatedAt()->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),
             'active' => $this->user->isActive(),
             'emailValidated' => $this->user->isEmailValidated(),
+            'locale' => $this->user->getLocale()->value(),
             //'lastLoginAt' => $this->user->getLastLoginAt()?->format(Date::DATE_DEFAULT_RENDER_FORMAT),
         ];
     }

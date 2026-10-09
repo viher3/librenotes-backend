@@ -7,6 +7,7 @@ namespace App\Notes\Application\FolderContents;
 use App\Notes\Domain\Exception\FolderNotFound;
 use App\Notes\Domain\Repository\AttachmentRepository;
 use App\Notes\Domain\Repository\FolderRepository;
+use App\Notes\Domain\Repository\LinkRepository;
 use App\Notes\Domain\Repository\NoteRepository;
 use App\Notes\Domain\ValueObject\FolderId;
 use App\Notes\Domain\ValueObject\OwnerId;
@@ -17,6 +18,7 @@ class FolderContentsHandler implements QueryHandler
     public function __construct(
         private FolderRepository $folderRepository,
         private NoteRepository $noteRepository,
+        private LinkRepository $linkRepository,
         private AttachmentRepository $attachmentRepository
     ) {
     }
@@ -40,6 +42,7 @@ class FolderContentsHandler implements QueryHandler
             folder: $folder,
             subfolders: $this->folderRepository->findChildren($folderId, $ownerId),
             notes: $this->noteRepository->findByFolder($folderId, $ownerId),
+            links: $this->linkRepository->findByFolder($folderId, $ownerId),
             attachments: $folderId !== null ? $this->attachmentRepository->findByFolder($folderId, $ownerId) : []
         );
     }

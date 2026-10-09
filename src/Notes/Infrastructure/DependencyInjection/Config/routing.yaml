@@ -102,3 +102,68 @@ permanently_delete_attachment:
   path: /trash/attachments/{id}
   methods: DELETE
   controller: App\Notes\Infrastructure\Ui\Controllers\PermanentlyDeleteAttachmentController
+
+upload_note_attachment:
+  path: /notes/{noteId}/attachments
+  methods: POST
+  controller: App\Notes\Infrastructure\Ui\Controllers\UploadNoteAttachmentController
+
+attachment_content:
+  path: /attachments/{id}/content
+  methods: GET
+  controller: App\Notes\Infrastructure\Ui\Controllers\AttachmentContentController
+
+list_notes:
+  path: /notes
+  methods: GET
+  controller: App\Notes\Infrastructure\Ui\Controllers\ListNotesController
+
+create_link:
+  path: /links
+  methods: POST
+  controller: App\Notes\Infrastructure\Ui\Controllers\CreateLinkController
+
+list_links:
+  path: /links
+  methods: GET
+  controller: App\Notes\Infrastructure\Ui\Controllers\ListLinksController
+
+link_detail:
+  path: /links/{id}
+  methods: GET
+  controller: App\Notes\Infrastructure\Ui\Controllers\LinkDetailController
+
+update_link:
+  path: /links/{id}
+  methods: PATCH
+  controller: App\Notes\Infrastructure\Ui\Controllers\UpdateLinkController
+
+delete_link:
+  path: /links/{id}
+  methods: DELETE
+  controller: App\Notes\Infrastructure\Ui\Controllers\DeleteLinkController
+
+move_link:
+  path: /links/{id}/move
+  methods: PATCH
+  controller: App\Notes\Infrastructure\Ui\Controllers\MoveLinkController
+
+restore_link:
+  path: /trash/links/{id}/restore
+  methods: POST
+  controller: App\Notes\Infrastructure\Ui\Controllers\RestoreLinkController
+
+permanently_delete_link:
+  path: /trash/links/{id}
+  methods: DELETE
+  controller: App\Notes\Infrastructure\Ui\Controllers\PermanentlyDeleteLinkController
+
+search:
+  path: /search
+  methods: GET
+  controller: App\Notes\Infrastructure\Ui\Controllers\SearchController
+
+list_tags:
+  path: /tags
+  methods: GET
+  controller: App\Notes\Infrastructure\Ui\Controllers\ListTagsController

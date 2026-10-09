@@ -1,0 +1,1391 @@
+paths:
+
+  /folders:
+    post:
+      summary: Create folder
+      tags:
+        - Folder
+      security:
+        - Bearer: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFolderRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatedResponse'
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: Parent folder not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /folders/contents:
+    get:
+      summary: List the contents of a folder (root when folder_id is omitted)
+      tags:
+        - Folder
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: folder_id
+          in: query
+          description: Folder to list. Omit for the root level.
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FolderContentsResponse'
+        '404':
+          description: Not found (or owned by another user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /folders/{id}:
+    patch:
+      summary: Rename folder
+      tags:
+        - Folder
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Folder ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RenameFolderRequest'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Not found (or owned by another user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+    delete:
+      summary: Move folder (with its contents) to the trash
+      tags:
+        - Folder
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Folder ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Not found (or owned by another user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /folders/{id}/move:
+    patch:
+      summary: Move folder to another parent (null = root)
+      tags:
+        - Folder
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Folder ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MoveFolderRequest'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Not found (or owned by another user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: Target folder not found or move would create a cycle (folder.cycle_detected)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /folders/{folderId}/attachments:
+    post:
+      summary: Upload a file to a folder
+      tags:
+        - Attachment
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: folderId
+          in: path
+          description: Folder ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UploadAttachmentRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatedResponse'
+        '400':
+          description: Missing "file" part
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Not found (or owned by another user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /notes:
+    get:
+      summary: List notes (paginated)
+      description: Notes that are not in the trash, without their content. Combine filters freely.
+      tags:
+        - Note
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: folder_id
+          in: query
+          description: Folder to list, or `root` for notes without a folder. Omit for all folders.
+          required: false
+          schema:
+            type: string
+        - name: tag
+          in: query
+          description: Only notes carrying this tag (case-insensitive)
+          required: false
+          schema:
+            type: string
+        - name: pinned
+          in: query
+          description: Only pinned (`true`) or only unpinned (`false`) notes
+          required: false
+          schema:
+            type: boolean
+        - name: orderBy
+          in: query
+          description: Sort field
+          required: false
+          schema:
+            type: string
+            enum: [ updated_at, created_at, title ]
+            default: updated_at
+        - name: orderDirection
+          in: query
+          description: Sort direction
+          required: false
+          schema:
+            type: string
+            enum: [ asc, desc ]
+            default: desc
+        - name: page
+          in: query
+          description: Page number (1-based)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: size
+          in: query
+          description: Page size (max 100)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteListResponse'
+        '400':
+          description: Invalid query parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+    post:
+      summary: Create note
+      tags:
+        - Note
+      security:
+        - Bearer: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateNoteRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatedResponse'
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: Folder not found (`folder.not_found`) or invalid tags (`tag.invalid`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /notes/{id}:
+    get:
+      summary: Get note
+      tags:
+        - Note
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Note ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteDetailResponse'
+        '404':
+          description: Not found (or owned by another user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+    patch:
+      summary: Update note title and/or content
+      tags:
+        - Note
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Note ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateNoteRequest'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Not found (or owned by another user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+    delete:
+      summary: Move note to the trash
+      tags:
+        - Note
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Note ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Not found (or owned by another user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /notes/{id}/move:
+    patch:
+      summary: Move note to a folder (null = root)
+      tags:
+        - Note
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Note ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MoveNoteRequest'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Not found (or owned by another user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: Target folder not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /attachments/{id}:
+    get:
+      summary: Get attachment metadata
+      tags:
+        - Attachment
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Attachment ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttachmentDetailResponse'
+        '404':
+          description: Not found (or owned by another user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+    delete:
+      summary: Move attachment to the trash
+      tags:
+        - Attachment
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Attachment ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Not found (or owned by another user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /trash:
+    get:
+      summary: List everything in the trash
+      tags:
+        - Trash
+      security:
+        - Bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrashResponse'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+    delete:
+      summary: Permanently delete everything in the trash
+      tags:
+        - Trash
+      security:
+        - Bearer: [ ]
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /trash/folders/{id}/restore:
+    post:
+      summary: Restore a folder from the trash
+      tags:
+        - Trash
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Folder ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Not found (or owned by another user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: Not in the trash (notes.not_in_trash)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /trash/folders/{id}:
+    delete:
+      summary: Permanently delete a folder from the trash
+      tags:
+        - Trash
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Folder ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Not found (or owned by another user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: Not in the trash (notes.not_in_trash)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /trash/notes/{id}/restore:
+    post:
+      summary: Restore a note from the trash
+      tags:
+        - Trash
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Note ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Not found (or owned by another user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: Not in the trash, or its parent folder is still in the trash (notes.not_in_trash / notes.parent_folder_in_trash / notes.parent_note_in_trash)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /trash/notes/{id}:
+    delete:
+      summary: Permanently delete a note from the trash
+      tags:
+        - Trash
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Note ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Not found (or owned by another user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: Not in the trash (notes.not_in_trash)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /trash/attachments/{id}/restore:
+    post:
+      summary: Restore an attachment from the trash
+      tags:
+        - Trash
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Attachment ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Not found (or owned by another user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: Not in the trash, or its parent folder is still in the trash (notes.not_in_trash / notes.parent_folder_in_trash / notes.parent_note_in_trash)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /trash/attachments/{id}:
+    delete:
+      summary: Permanently delete a attachment from the trash
+      tags:
+        - Trash
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Attachment ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Not found (or owned by another user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: Not in the trash (notes.not_in_trash)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /notes/{noteId}/attachments:
+    post:
+      summary: Attach a file to a note
+      description: >
+        Uploads a file (multipart field `file`, up to 50 MB, not empty) bound to the note. It follows the note
+        through trash, restore and permanent deletion.
+      tags:
+        - Attachment
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: noteId
+          in: path
+          description: Note ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UploadAttachmentRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatedResponse'
+        '400':
+          description: Missing "file" part or failed upload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Note not found (or owned by another user, or in the trash)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: File empty (`attachment.empty`) or larger than 50 MB (`attachment.too_large`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /attachments/{id}/content:
+    get:
+      summary: Download an attachment
+      description: >
+        Streams the stored file. Served with `Content-Disposition: attachment` and `X-Content-Type-Options: nosniff`;
+        `inline=1` is honoured only for png, jpeg, gif and webp images. Attachments in the trash are not downloadable.
+        Send the access token in the `Authorization` header (fetch it as a Blob; it cannot be used as a plain `<img src>`).
+      tags:
+        - Attachment
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Attachment ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: inline
+          in: query
+          description: Ask for inline display (safe raster image types only)
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: The file
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Not found (or owned by another user, or in the trash)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /links:
+    get:
+      summary: List links (paginated)
+      tags:
+        - Link
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: folder_id
+          in: query
+          description: Folder to list, or `root` for links without a folder. Omit for all folders.
+          required: false
+          schema:
+            type: string
+        - name: tag
+          in: query
+          description: Only links carrying this tag (case-insensitive)
+          required: false
+          schema:
+            type: string
+        - name: orderBy
+          in: query
+          description: Sort field
+          required: false
+          schema:
+            type: string
+            enum: [ updated_at, created_at, title ]
+            default: updated_at
+        - name: orderDirection
+          in: query
+          description: Sort direction
+          required: false
+          schema:
+            type: string
+            enum: [ asc, desc ]
+            default: desc
+        - name: page
+          in: query
+          description: Page number (1-based)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: size
+          in: query
+          description: Page size (max 100)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkListResponse'
+        '400':
+          description: Invalid query parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+    post:
+      summary: Save a link
+      description: Only absolute `http`/`https` URLs are accepted.
+      tags:
+        - Link
+      security:
+        - Bearer: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLinkRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatedResponse'
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: Invalid URL (`link.invalid_url`), invalid tags (`tag.invalid`) or folder not found (`folder.not_found`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /links/{id}:
+    get:
+      summary: Get link
+      tags:
+        - Link
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Link ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkDetailResponse'
+        '404':
+          description: Not found (or owned by another user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+    patch:
+      summary: Update a link (title, url, note and/or tags)
+      description: Sending `tags` replaces the whole set; a `null` note clears it.
+      tags:
+        - Link
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Link ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLinkRequest'
+      responses:
+        '200':
+          description: Updated
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Not found (or owned by another user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: Invalid URL (`link.invalid_url`) or tags (`tag.invalid`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+    delete:
+      summary: Move link to the trash
+      tags:
+        - Link
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Link ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Deleted
+        '404':
+          description: Not found (or owned by another user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /links/{id}/move:
+    patch:
+      summary: Move link to a folder (null = root)
+      tags:
+        - Link
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Link ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MoveLinkRequest'
+      responses:
+        '200':
+          description: Moved
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Not found (or owned by another user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: Target folder not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /trash/links/{id}/restore:
+    post:
+      summary: Restore a link from the trash
+      tags:
+        - Trash
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Link ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Restored
+        '404':
+          description: Not found (or owned by another user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: Not in the trash (`notes.not_in_trash`) or its folder is still in the trash (`notes.parent_folder_in_trash`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /trash/links/{id}:
+    delete:
+      summary: Permanently delete a link from the trash
+      tags:
+        - Trash
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Link ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Deleted
+        '404':
+          description: Not found (or owned by another user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: Not in the trash (`notes.not_in_trash`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /search:
+    get:
+      summary: Search notes and links
+      description: >
+        Case- and accent-insensitive substring search over note titles and content and link titles, notes and URLs.
+        Every whitespace-separated term must match (max 8 terms). Items in the trash are excluded. Results whose
+        title matches every term come first, then the most recently updated. `snippet` is a plain-text excerpt
+        around the first match (clients should highlight the terms themselves).
+      tags:
+        - Search
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: q
+          in: query
+          description: Search text (at least 2 characters)
+          required: true
+          schema:
+            type: string
+            minLength: 2
+        - name: type
+          in: query
+          description: Comma-separated item types to search
+          required: false
+          schema:
+            type: string
+            example: note,link
+        - name: tag
+          in: query
+          description: Only items carrying this tag (case-insensitive)
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Page number (1-based)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: size
+          in: query
+          description: Page size (max 100)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+        '400':
+          description: Missing `q` or invalid parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: Query too short (`search.query_too_short`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /tags:
+    get:
+      summary: List the tags in use
+      description: Tags of notes and links that are not in the trash, with usage counts, most used first.
+      tags:
+        - Tag
+      security:
+        - Bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagListResponse'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'

@@ -5,6 +5,7 @@ doctrine:
       user_id: App\User\Infrastructure\Persistence\Doctrine\Type\UserIdType
       user_email: App\User\Infrastructure\Persistence\Doctrine\Type\UserEmailType
       username: App\User\Infrastructure\Persistence\Doctrine\Type\UsernameType
+      user_locale: App\User\Infrastructure\Persistence\Doctrine\Type\UserLocaleType
       hashed_password: App\User\Infrastructure\Persistence\Doctrine\Type\HashedPasswordType
       password_recovery_token: App\User\Infrastructure\Persistence\Doctrine\Type\PasswordRecoveryTokenType
       activation_token: App\User\Infrastructure\Persistence\Doctrine\Type\ActivationTokenType

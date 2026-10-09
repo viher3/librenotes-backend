@@ -8,6 +8,7 @@ use App\Core\Infrastructure\Persistence\Doctrine\DoctrineRepository;
 use App\Notes\Domain\Model\Attachment;
 use App\Notes\Domain\Repository\AttachmentRepository;
 use App\Notes\Domain\ValueObject\FolderId;
+use App\Notes\Domain\ValueObject\NoteId;
 use App\Notes\Domain\ValueObject\OwnerId;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
@@ -50,6 +51,21 @@ final class DoctrineAttachmentRepository extends DoctrineRepository implements A
             ->getResult();
     }
 
+    public function findByNote(NoteId $noteId, OwnerId $ownerId): array
+    {
+        return $this->byNoteQueryBuilder($noteId, $ownerId)
+            ->andWhere('a.deletedAt IS NULL')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findAllByNote(NoteId $noteId, OwnerId $ownerId): array
+    {
+        return $this->byNoteQueryBuilder($noteId, $ownerId)
+            ->getQuery()
+            ->getResult();
+    }
+
     public function findTrashed(OwnerId $ownerId): array
     {
         return $this->createQueryBuilder('a')
@@ -59,6 +75,16 @@ final class DoctrineAttachmentRepository extends DoctrineRepository implements A
             ->orderBy('a.deletedAt', 'desc')
             ->getQuery()
             ->getResult();
+    }
+
+    private function byNoteQueryBuilder(NoteId $noteId, OwnerId $ownerId): QueryBuilder
+    {
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.ownerId = :ownerId')
+            ->andWhere('a.noteId = :noteId')
+            ->setParameter('ownerId', $ownerId->value())
+            ->setParameter('noteId', $noteId->value())
+            ->orderBy('a.createdAt', 'desc');
     }
 
     private function byFolderQueryBuilder(FolderId $folderId, OwnerId $ownerId): QueryBuilder

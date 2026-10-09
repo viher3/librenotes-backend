@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace App\Notes\Application\MoveNoteToTrash;
 
-use App\Core\Application\Command\CommandHandler;
+use App\Core\Application\Command\TransactionalCommandHandler;
 use App\Core\Domain\Time\DateTimeProvider;
 use App\Notes\Domain\Exception\NoteNotFound;
 use App\Notes\Domain\Repository\NoteRepository;
+use App\Notes\Domain\Service\NoteAttachmentLifecycle;
 use App\Notes\Domain\ValueObject\OwnerId;
 
-class MoveNoteToTrashHandler implements CommandHandler
+class MoveNoteToTrashHandler implements TransactionalCommandHandler
 {
     public function __construct(
         private NoteRepository $noteRepository,
+        private NoteAttachmentLifecycle $noteAttachments,
         private DateTimeProvider $dateTimeProvider
     ) {
     }
@@ -27,8 +29,10 @@ class MoveNoteToTrashHandler implements CommandHandler
             throw new NoteNotFound($command->id);
         }
 
-        $note->moveToTrash($this->dateTimeProvider->now());
+        $now = $this->dateTimeProvider->now();
+        $note->moveToTrash($now);
 
         $this->noteRepository->save($note);
+        $this->noteAttachments->trash($note, $ownerId, $now);
     }
 }

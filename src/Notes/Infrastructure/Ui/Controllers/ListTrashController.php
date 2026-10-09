@@ -11,14 +11,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ListTrashController extends BaseApiController
 {
-    private const string NIL_UUID = '00000000-0000-0000-0000-000000000000';
-
     public function __invoke(): JsonResponse
     {
         /** @var ListTrashResponse $response */
         $response = $this->ask(
             new ListTrashQuery(
-                ownerId: $this->getUser()?->getUserIdentifier() ?? self::NIL_UUID
+                ownerId: $this->currentUserId()
             )
         );
 

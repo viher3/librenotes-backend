@@ -775,12 +775,6 @@ parameters:
 			path: src/Notes/Infrastructure/Ui/Controllers/UpdateNoteController.php
 
 		-
-			message: '#^Method App\\Notes\\Infrastructure\\Ui\\Controllers\\UploadAttachmentController\:\:exceptions\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Notes/Infrastructure/Ui/Controllers/UploadAttachmentController.php
-
-		-
 			message: '#^Method App\\Security\\Application\\RenewUserAuthentication\\RenewUserAuthenticationResponse\:\:getResult\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
