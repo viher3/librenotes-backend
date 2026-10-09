@@ -7,12 +7,14 @@ namespace App\Notes\Application\LinkDetail;
 use App\Core\Application\Query\QueryHandler;
 use App\Notes\Domain\Exception\LinkNotFound;
 use App\Notes\Domain\Repository\LinkRepository;
+use App\Notes\Domain\Service\NoteHierarchy;
 use App\Notes\Domain\ValueObject\OwnerId;
 
 class LinkDetailHandler implements QueryHandler
 {
     public function __construct(
-        private LinkRepository $linkRepository
+        private LinkRepository $linkRepository,
+        private NoteHierarchy $hierarchy
     ) {
     }
 
@@ -25,6 +27,6 @@ class LinkDetailHandler implements QueryHandler
             throw new LinkNotFound($query->id);
         }
 
-        return new LinkDetailResponse($link);
+        return new LinkDetailResponse($link, $this->hierarchy->pathOfLink($link));
     }
 }

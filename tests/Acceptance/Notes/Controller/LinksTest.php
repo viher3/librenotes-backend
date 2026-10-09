@@ -34,13 +34,46 @@ class LinksTest extends WebTestCase
 
         $this->assertSame(200, $api->status());
         $this->assertEqualsCanonicalizing(
-            ['id', 'title', 'url', 'note', 'folder_id', 'parent_note_id', 'tags', 'created_at', 'updated_at'],
+            ['id', 'title', 'url', 'note', 'folder_id', 'parent_note_id', 'path', 'tags', 'created_at', 'updated_at'],
             array_keys($link)
         );
         $this->assertSame('https://symfony.com', $link['url']);
         $this->assertSame('Docs', $link['note']);
         $this->assertSame(['dev', 'php'], $link['tags']);
         $this->assertNull($link['folder_id']);
+    }
+
+    public function testTheDetailSaysWhereTheLinkSits(): void
+    {
+        $api = $this->api();
+        $outer = $api->createFolder('Outer');
+        $inner = $api->createFolder('Inner', $outer);
+        $note = $api->createNote('Project', '', $inner);
+        $child = $api->createNote('Task', '', null, ['parent_note_id' => $note]);
+
+        $atRoot = $this->createLink($api);
+        $inFolder = $this->createLink($api, ['folder_id' => $inner]);
+        $underNote = $this->createLink($api, ['parent_note_id' => $child]);
+
+        $this->assertSame([], $api->request('GET', '/links/' . $atRoot)['path']);
+        $this->assertSame(
+            [
+                ['type' => 'folder', 'id' => $outer, 'title' => 'Outer'],
+                ['type' => 'folder', 'id' => $inner, 'title' => 'Inner'],
+            ],
+            $api->request('GET', '/links/' . $inFolder)['path'],
+            'the direct parent is part of the path'
+        );
+        $this->assertSame(
+            [
+                ['type' => 'folder', 'id' => $outer, 'title' => 'Outer'],
+                ['type' => 'folder', 'id' => $inner, 'title' => 'Inner'],
+                ['type' => 'note', 'id' => $note, 'title' => 'Project'],
+                ['type' => 'note', 'id' => $child, 'title' => 'Task'],
+            ],
+            $api->request('GET', '/links/' . $underNote)['path']
+        );
+        $this->assertArrayNotHasKey('path', $api->request('GET', '/links')['data'][0], 'lists do not carry it');
     }
 
     public function testOnlyHttpAndHttpsUrlsAreAccepted(): void

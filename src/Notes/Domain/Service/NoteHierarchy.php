@@ -6,6 +6,7 @@ namespace App\Notes\Domain\Service;
 
 use App\Notes\Domain\Exception\NoteCycleDetected;
 use App\Notes\Domain\Model\Folder;
+use App\Notes\Domain\Model\Link;
 use App\Notes\Domain\Model\Note;
 use App\Notes\Domain\Repository\FolderRepository;
 use App\Notes\Domain\Repository\NoteRepository;
@@ -77,6 +78,34 @@ class NoteHierarchy
         }
 
         return $path;
+    }
+
+    /**
+     * Ancestors of a link from the root down to its direct parent (the link itself is not included): the note it is
+     * under, that note's own ancestors, or the chain of folders it is in.
+     *
+     * @return list<array{type: string, id: string, title: string}>
+     */
+    public function pathOfLink(Link $link): array
+    {
+        if ($link->getParentNoteId() !== null) {
+            $parent = $this->noteRepository->getById($link->getParentNoteId()->value());
+
+            return $parent === null
+                ? []
+                : [
+                    ...$this->pathOfNote($parent),
+                    ['type' => 'note', 'id' => $parent->getId()->value(), 'title' => $parent->getTitle()->value()],
+                ];
+        }
+
+        if ($link->getFolderId() !== null) {
+            $folder = $this->folderRepository->getById($link->getFolderId()->value());
+
+            return $folder === null ? [] : $this->folderChain($folder);
+        }
+
+        return [];
     }
 
     /**

@@ -480,7 +480,7 @@ components:
           type: string
           format: date-time
 
-    LinkDetailResponse:
+    LinkListItem:
       type: object
       properties:
         id:
@@ -511,6 +511,39 @@ components:
           type: string
           format: date-time
 
+    LinkDetailResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        url:
+          type: string
+        note:
+          type: string
+          nullable: true
+        folder_id:
+          type: string
+          format: uuid
+          nullable: true
+        parent_note_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: The note it is placed under, if any.
+        tags:
+          $ref: '#/components/schemas/TagNames'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        path:
+          $ref: '#/components/schemas/AncestorPath'
+
     LinkListResponse:
       type: object
       properties:
@@ -519,7 +552,7 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/LinkDetailResponse'
+            $ref: '#/components/schemas/LinkListItem'
 
     SearchResult:
       type: object
