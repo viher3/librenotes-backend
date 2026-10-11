@@ -10,6 +10,7 @@
         <id name="id" type="note_id" column="id" length="36"/>
         <field name="title" column="title" type="note_title"/>
         <field name="content" column="content" type="note_content"/>
+        <field name="icon" column="icon" type="notes_icon" length="32" nullable="true"/>
         <field name="folderId" column="folder_id" type="folder_id" length="36" nullable="true"/>
         <field name="parentNoteId" column="parent_note_id" type="note_id" length="36" nullable="true"/>
         <field name="ownerId" column="owner_id" type="notes_owner_id" length="36"/>

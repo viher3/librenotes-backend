@@ -2,16 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Notes\Application\RenameFolder;
+namespace App\Notes\Application\UpdateFolder;
 
 use App\Core\Application\Command\TransactionalCommandHandler;
 use App\Core\Domain\Time\DateTimeProvider;
 use App\Notes\Domain\Exception\FolderNotFound;
 use App\Notes\Domain\Repository\FolderRepository;
-use App\Notes\Domain\ValueObject\FolderName;
 use App\Notes\Domain\ValueObject\OwnerId;
 
-class RenameFolderHandler implements TransactionalCommandHandler
+class UpdateFolderHandler implements TransactionalCommandHandler
 {
     public function __construct(
         private FolderRepository $folderRepository,
@@ -19,7 +18,7 @@ class RenameFolderHandler implements TransactionalCommandHandler
     ) {
     }
 
-    public function __invoke(RenameFolderCommand $command): void
+    public function __invoke(UpdateFolderCommand $command): void
     {
         $ownerId = new OwnerId($command->ownerId);
         $folder = $this->folderRepository->getById($command->id);
@@ -28,7 +27,7 @@ class RenameFolderHandler implements TransactionalCommandHandler
             throw new FolderNotFound($command->id);
         }
 
-        $folder->rename(new FolderName($command->name), $this->dateTimeProvider->now());
+        $folder->update($command->fields, $this->dateTimeProvider->now());
 
         $this->folderRepository->save($folder);
     }

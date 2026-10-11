@@ -8,10 +8,10 @@ folder_contents:
   methods: GET
   controller: App\Notes\Infrastructure\Ui\Controllers\FolderContentsController
 
-rename_folder:
+update_folder:
   path: /folders/{id}
   methods: PATCH
-  controller: App\Notes\Infrastructure\Ui\Controllers\RenameFolderController
+  controller: App\Notes\Infrastructure\Ui\Controllers\UpdateFolderController
 
 move_folder:
   path: /folders/{id}/move

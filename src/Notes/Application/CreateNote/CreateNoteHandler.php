@@ -9,6 +9,7 @@ use App\Core\Domain\Time\DateTimeProvider;
 use App\Notes\Domain\Model\Note;
 use App\Notes\Domain\Repository\NoteRepository;
 use App\Notes\Domain\Service\ContentPlacement;
+use App\Notes\Domain\ValueObject\Icon;
 use App\Notes\Domain\ValueObject\NoteContent;
 use App\Notes\Domain\ValueObject\NoteId;
 use App\Notes\Domain\ValueObject\NoteTitle;
@@ -38,7 +39,8 @@ class CreateNoteHandler implements TransactionalCommandHandler
             createdAt: $this->dateTimeProvider->now(),
             pinned: $command->pinned,
             tags: new Tags($command->tags),
-            parentNoteId: $parentNoteId
+            parentNoteId: $parentNoteId,
+            icon: Icon::fromNullable($command->icon)
         );
 
         $this->noteRepository->save($note);

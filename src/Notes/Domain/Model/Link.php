@@ -8,6 +8,7 @@ use App\Core\Domain\Aggregate\AggregateRoot;
 use App\Core\Domain\ValueObject\DateTimeValueObject;
 use App\Notes\Domain\Exception\InvalidContentLocation;
 use App\Notes\Domain\ValueObject\FolderId;
+use App\Notes\Domain\ValueObject\Icon;
 use App\Notes\Domain\ValueObject\LinkId;
 use App\Notes\Domain\ValueObject\LinkNote;
 use App\Notes\Domain\ValueObject\LinkTitle;
@@ -20,6 +21,7 @@ class Link extends AggregateRoot
 {
     private const VALID_PARTIAL_UPDATE_FIELDS = [
         'title',
+        'icon',
         'url',
         'note',
         'tags',
@@ -27,6 +29,7 @@ class Link extends AggregateRoot
 
     private LinkId $id;
     protected LinkTitle $title;
+    protected ?Icon $icon;
     protected LinkUrl $url;
     protected ?LinkNote $note;
     protected Tags $tags;
@@ -46,7 +49,8 @@ class Link extends AggregateRoot
         OwnerId $ownerId,
         \DateTimeInterface $createdAt,
         ?Tags $tags = null,
-        ?NoteId $parentNoteId = null
+        ?NoteId $parentNoteId = null,
+        ?Icon $icon = null
     ) {
         if ($folderId !== null && $parentNoteId !== null) {
             throw new InvalidContentLocation();
@@ -54,6 +58,7 @@ class Link extends AggregateRoot
 
         $this->id = $id;
         $this->title = $title;
+        $this->icon = $icon;
         $this->url = $url;
         $this->note = $note;
         $this->tags = $tags ?? Tags::empty();
@@ -77,6 +82,7 @@ class Link extends AggregateRoot
     {
         return match ($field) {
             'title' => new LinkTitle($value),
+            'icon' => Icon::fromNullable($value),
             'url' => new LinkUrl($value),
             'note' => ($value === null || $value === '') ? null : new LinkNote($value),
             'tags' => new Tags($value),
@@ -130,6 +136,11 @@ class Link extends AggregateRoot
     public function getTitle(): LinkTitle
     {
         return $this->title;
+    }
+
+    public function getIcon(): ?Icon
+    {
+        return $this->icon;
     }
 
     public function getUrl(): LinkUrl

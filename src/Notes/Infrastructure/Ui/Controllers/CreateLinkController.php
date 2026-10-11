@@ -10,6 +10,7 @@ use App\Notes\Domain\Exception\FolderNotFound;
 use App\Notes\Domain\Exception\InvalidContentLocation;
 use App\Notes\Domain\Exception\ParentNoteNotFound;
 use App\Notes\Domain\Exception\InvalidLinkUrl;
+use App\Notes\Domain\Exception\InvalidIcon;
 use App\Notes\Domain\Exception\InvalidTag;
 use App\Notes\Domain\ValueObject\LinkId;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -36,7 +37,8 @@ class CreateLinkController extends BaseApiController
                 folderId: $body['folder_id'] ?? null,
                 parentNoteId: $body['parent_note_id'] ?? null,
                 ownerId: $this->currentUserId(),
-                tags: $body['tags'] ?? []
+                tags: $body['tags'] ?? [],
+                icon: $body['icon'] ?? null
             )
         );
 
@@ -52,6 +54,7 @@ class CreateLinkController extends BaseApiController
                 "title": {"type": "string", "minLength": 1, "maxLength": 255},
                 "url": {"type": "string", "minLength": 1, "maxLength": 2048},
                 "note": {"type": ["string", "null"]},
+                "icon": {"type": ["string", "null"], "maxLength": 32},
                 "folder_id": {"type": ["string", "null"], "format": "uuid"},
                 "parent_note_id": {
                   "type": ["string", "null"],
@@ -75,6 +78,7 @@ class CreateLinkController extends BaseApiController
             InvalidContentLocation::class => Response::HTTP_UNPROCESSABLE_ENTITY,
             InvalidLinkUrl::class => Response::HTTP_UNPROCESSABLE_ENTITY,
             InvalidTag::class => Response::HTTP_UNPROCESSABLE_ENTITY,
+            InvalidIcon::class => Response::HTTP_UNPROCESSABLE_ENTITY,
         ];
     }
 }

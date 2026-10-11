@@ -11,7 +11,7 @@ interface SearchRepository
      * `snippet` is a plain-text excerpt around the first match.
      *
      * @return array{
-     *     items: list<array{type: string, id: string, title: string, snippet: string, folder_id: ?string, tags: string[], updated_at: string, url: ?string}>,
+     *     items: list<array{type: string, id: string, title: string, icon: ?string, snippet: string, folder_id: ?string, tags: string[], updated_at: string, url: ?string}>,
      *     total: int
      * }
      */

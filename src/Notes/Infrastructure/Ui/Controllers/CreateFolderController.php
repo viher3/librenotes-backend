@@ -7,6 +7,7 @@ namespace App\Notes\Infrastructure\Ui\Controllers;
 use App\Core\Infrastructure\Framework\Symfony\Controller\BaseApiController;
 use App\Notes\Application\CreateFolder\CreateFolderCommand;
 use App\Notes\Domain\Exception\FolderNotFound;
+use App\Notes\Domain\Exception\InvalidIcon;
 use App\Notes\Domain\ValueObject\FolderId;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,7 +29,8 @@ class CreateFolderController extends BaseApiController
                 id: $id,
                 name: $body['name'],
                 parentFolderId: $body['parent_folder_id'] ?? null,
-                ownerId: $this->currentUserId()
+                ownerId: $this->currentUserId(),
+                icon: $body['icon'] ?? null
             )
         );
 
@@ -49,7 +51,8 @@ class CreateFolderController extends BaseApiController
                 "parent_folder_id": {
                   "type": ["string", "null"],
                   "format": "uuid"
-                }
+                },
+                "icon": {"type": ["string", "null"], "maxLength": 32}
               },
               "required": ["name"]
             }
@@ -60,6 +63,7 @@ class CreateFolderController extends BaseApiController
     {
         return [
             FolderNotFound::class => Response::HTTP_UNPROCESSABLE_ENTITY,
+            InvalidIcon::class => Response::HTTP_UNPROCESSABLE_ENTITY,
         ];
     }
 }

@@ -37,6 +37,7 @@ class ListLinksResponse implements QueryResponse
                 static fn (Link $link) => [
                     'id' => $link->getId()->value(),
                     'title' => $link->getTitle()->value(),
+                    'icon' => $link->getIcon()?->value(),
                     'url' => $link->getUrl()->value(),
                     'note' => $link->getNote()?->value(),
                     'folder_id' => $link->getFolderId()?->value(),

@@ -34,7 +34,7 @@ class LinksTest extends WebTestCase
 
         $this->assertSame(200, $api->status());
         $this->assertEqualsCanonicalizing(
-            ['id', 'title', 'url', 'note', 'folder_id', 'parent_note_id', 'path', 'tags', 'created_at', 'updated_at'],
+            ['id', 'title', 'icon', 'url', 'note', 'folder_id', 'parent_note_id', 'path', 'tags', 'created_at', 'updated_at'],
             array_keys($link)
         );
         $this->assertSame('https://symfony.com', $link['url']);
@@ -183,7 +183,7 @@ class LinksTest extends WebTestCase
 
         $trash = $api->request('GET', '/trash');
         $this->assertSame([$id], array_column($trash['links'], 'id'));
-        $this->assertEqualsCanonicalizing(['id', 'title', 'url', 'folder_id', 'deleted_at'], array_keys($trash['links'][0]));
+        $this->assertEqualsCanonicalizing(['id', 'title', 'icon', 'url', 'folder_id', 'deleted_at'], array_keys($trash['links'][0]));
 
         $api->request('POST', '/trash/links/' . $id . '/restore');
         $this->assertSame(200, $api->status());

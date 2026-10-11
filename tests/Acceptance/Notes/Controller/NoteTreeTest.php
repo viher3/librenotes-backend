@@ -73,7 +73,7 @@ class NoteTreeTest extends WebTestCase
         $this->assertSame([$leaf, $withKids], $this->ids($children['notes']), 'ordered by title');
         $this->assertSame([0, 2], array_column($children['notes'], 'child_count'));
         $this->assertEqualsCanonicalizing(
-            ['id', 'title', 'pinned', 'tags', 'child_count', 'created_at', 'updated_at'],
+            ['id', 'title', 'icon', 'pinned', 'tags', 'child_count', 'created_at', 'updated_at'],
             array_keys($children['notes'][0])
         );
         $this->assertSame([$link], $this->ids($children['links']));

@@ -9,6 +9,7 @@ use App\Core\Domain\Time\DateTimeProvider;
 use App\Notes\Domain\Model\Link;
 use App\Notes\Domain\Repository\LinkRepository;
 use App\Notes\Domain\Service\ContentPlacement;
+use App\Notes\Domain\ValueObject\Icon;
 use App\Notes\Domain\ValueObject\LinkId;
 use App\Notes\Domain\ValueObject\LinkNote;
 use App\Notes\Domain\ValueObject\LinkTitle;
@@ -40,7 +41,8 @@ class CreateLinkHandler implements TransactionalCommandHandler
                 ownerId: $ownerId,
                 createdAt: $this->dateTimeProvider->now(),
                 tags: new Tags($command->tags),
-                parentNoteId: $parentNoteId
+                parentNoteId: $parentNoteId,
+                icon: Icon::fromNullable($command->icon)
             )
         );
     }

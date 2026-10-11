@@ -9,6 +9,7 @@
     >
         <id name="id" type="folder_id" column="id" length="36"/>
         <field name="name" column="name" type="folder_name"/>
+        <field name="icon" column="icon" type="notes_icon" length="32" nullable="true"/>
         <field name="parentFolderId" column="parent_folder_id" type="folder_id" length="36" nullable="true"/>
         <field name="ownerId" column="owner_id" type="notes_owner_id" length="36"/>
         <field name="createdAt" column="created_at" type="datetime_vo"/>

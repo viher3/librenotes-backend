@@ -39,6 +39,7 @@ class ListNotesResponse implements QueryResponse
                 fn (Note $note) => [
                     'id' => $note->getId()->value(),
                     'title' => $note->getTitle()->value(),
+                    'icon' => $note->getIcon()?->value(),
                     'folder_id' => $note->getFolderId()?->value(),
                     'parent_note_id' => $note->getParentNoteId()?->value(),
                     'child_count' => $this->childCounts[$note->getId()->value()] ?? 0,

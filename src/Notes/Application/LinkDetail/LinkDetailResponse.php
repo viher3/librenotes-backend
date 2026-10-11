@@ -27,6 +27,7 @@ class LinkDetailResponse implements QueryResponse
         return [
             'id' => $this->link->getId()->value(),
             'title' => $this->link->getTitle()->value(),
+            'icon' => $this->link->getIcon()?->value(),
             'url' => $this->link->getUrl()->value(),
             'note' => $this->link->getNote()?->value(),
             'folder_id' => $this->link->getFolderId()?->value(),

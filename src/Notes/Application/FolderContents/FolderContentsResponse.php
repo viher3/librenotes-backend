@@ -38,6 +38,7 @@ class FolderContentsResponse implements QueryResponse
             'folder' => $this->folder ? [
                 'id' => $this->folder->getId()->value(),
                 'name' => $this->folder->getName()->value(),
+                'icon' => $this->folder->getIcon()?->value(),
                 'parent_folder_id' => $this->folder->getParentFolderId()?->value(),
                 'path' => $this->path,
             ] : null,
@@ -45,6 +46,7 @@ class FolderContentsResponse implements QueryResponse
                 static fn (Folder $folder) => [
                     'id' => $folder->getId()->value(),
                     'name' => $folder->getName()->value(),
+                    'icon' => $folder->getIcon()?->value(),
                     'created_at' => $folder->getCreatedAt()->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),
                 ],
                 $this->subfolders
@@ -53,6 +55,7 @@ class FolderContentsResponse implements QueryResponse
                 fn (Note $note) => [
                     'id' => $note->getId()->value(),
                     'title' => $note->getTitle()->value(),
+                    'icon' => $note->getIcon()?->value(),
                     'pinned' => $note->isPinned(),
                     'tags' => $note->getTags()->names(),
                     'child_count' => $this->childCounts[$note->getId()->value()] ?? 0,
@@ -65,6 +68,7 @@ class FolderContentsResponse implements QueryResponse
                 static fn (Link $link) => [
                     'id' => $link->getId()->value(),
                     'title' => $link->getTitle()->value(),
+                    'icon' => $link->getIcon()?->value(),
                     'url' => $link->getUrl()->value(),
                     'note' => $link->getNote()?->value(),
                     'tags' => $link->getTags()->names(),

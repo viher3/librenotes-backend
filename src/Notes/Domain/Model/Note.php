@@ -9,6 +9,7 @@ use App\Core\Domain\ValueObject\BoolValueObject;
 use App\Core\Domain\ValueObject\DateTimeValueObject;
 use App\Notes\Domain\Exception\InvalidContentLocation;
 use App\Notes\Domain\ValueObject\FolderId;
+use App\Notes\Domain\ValueObject\Icon;
 use App\Notes\Domain\ValueObject\NoteContent;
 use App\Notes\Domain\ValueObject\NoteId;
 use App\Notes\Domain\ValueObject\NoteTitle;
@@ -19,6 +20,7 @@ class Note extends AggregateRoot
 {
     private const VALID_PARTIAL_UPDATE_FIELDS = [
         'title',
+        'icon',
         'content',
         'pinned',
         'tags',
@@ -26,6 +28,7 @@ class Note extends AggregateRoot
 
     private NoteId $id;
     protected NoteTitle $title;
+    protected ?Icon $icon;
     protected NoteContent $content;
     private ?FolderId $folderId;
     private ?NoteId $parentNoteId;
@@ -45,7 +48,8 @@ class Note extends AggregateRoot
         \DateTimeInterface $createdAt,
         bool $pinned = false,
         ?Tags $tags = null,
-        ?NoteId $parentNoteId = null
+        ?NoteId $parentNoteId = null,
+        ?Icon $icon = null
     ) {
         if ($folderId !== null && $parentNoteId !== null) {
             throw new InvalidContentLocation();
@@ -53,6 +57,7 @@ class Note extends AggregateRoot
 
         $this->id = $id;
         $this->title = $title;
+        $this->icon = $icon;
         $this->content = $content;
         $this->folderId = $folderId;
         $this->parentNoteId = $parentNoteId;
@@ -73,6 +78,7 @@ class Note extends AggregateRoot
     {
         return match ($field) {
             'title' => new NoteTitle($value),
+            'icon' => Icon::fromNullable($value),
             'content' => new NoteContent($value),
             'pinned' => new BoolValueObject($value),
             'tags' => new Tags($value),
@@ -126,6 +132,11 @@ class Note extends AggregateRoot
     public function getTitle(): NoteTitle
     {
         return $this->title;
+    }
+
+    public function getIcon(): ?Icon
+    {
+        return $this->icon;
     }
 
     public function getContent(): NoteContent

@@ -12,7 +12,8 @@ readonly class CreateFolderCommand implements Command
         public string $id,
         public string $name,
         public ?string $parentFolderId,
-        public string $ownerId
+        public string $ownerId,
+        public ?string $icon = null
     ) {
     }
 }

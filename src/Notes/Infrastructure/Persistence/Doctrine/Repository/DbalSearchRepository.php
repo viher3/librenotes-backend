@@ -110,7 +110,7 @@ final class DbalSearchRepository implements SearchRepository
         $titleRank = '(CASE WHEN ' . implode(' AND ', $titleHits) . ' THEN 0 ELSE 1 END)';
         $whereSql = implode(' AND ', $where);
 
-        return "(SELECT '$type' AS type, $alias.id AS id, $titleColumn AS title, $alias.folder_id AS folder_id, "
+        return "(SELECT '$type' AS type, $alias.id AS id, $titleColumn AS title, $alias.icon AS icon, $alias.folder_id AS folder_id, "
             . "$alias.tags AS tags, $alias.updated_at AS updated_at, $urlExpr AS url, $titleRank AS title_rank, "
             . "LOCATE(:raw_term, $bodyExpr) AS pos, "
             . 'SUBSTRING(' . $bodyExpr . ', GREATEST(1, LOCATE(:raw_term, ' . $bodyExpr . ') - ' . self::SNIPPET_LEAD . '), ' . self::SNIPPET_LENGTH . ') AS body_excerpt, '
@@ -120,7 +120,7 @@ final class DbalSearchRepository implements SearchRepository
 
     /**
      * @param array<string, mixed> $row
-     * @return array{type: string, id: string, title: string, snippet: string, folder_id: ?string, tags: string[], updated_at: string, url: ?string}
+     * @return array{type: string, id: string, title: string, icon: ?string, snippet: string, folder_id: ?string, tags: string[], updated_at: string, url: ?string}
      */
     private function toItem(array $row, SearchCriteria $criteria): array
     {
@@ -143,6 +143,7 @@ final class DbalSearchRepository implements SearchRepository
             'type' => (string) $row['type'],
             'id' => (string) $row['id'],
             'title' => (string) $row['title'],
+            'icon' => $row['icon'] !== null ? (string) $row['icon'] : null,
             'snippet' => $snippet,
             'folder_id' => $row['folder_id'] !== null ? (string) $row['folder_id'] : null,
             'tags' => is_array($tags) ? array_values($tags) : [],

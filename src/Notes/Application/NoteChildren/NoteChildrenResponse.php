@@ -33,6 +33,7 @@ class NoteChildrenResponse implements QueryResponse
                 fn (Note $note) => [
                     'id' => $note->getId()->value(),
                     'title' => $note->getTitle()->value(),
+                    'icon' => $note->getIcon()?->value(),
                     'pinned' => $note->isPinned(),
                     'tags' => $note->getTags()->names(),
                     'child_count' => $this->childCounts[$note->getId()->value()] ?? 0,
@@ -45,6 +46,7 @@ class NoteChildrenResponse implements QueryResponse
                 static fn (Link $link) => [
                     'id' => $link->getId()->value(),
                     'title' => $link->getTitle()->value(),
+                    'icon' => $link->getIcon()?->value(),
                     'url' => $link->getUrl()->value(),
                     'note' => $link->getNote()?->value(),
                     'tags' => $link->getTags()->names(),

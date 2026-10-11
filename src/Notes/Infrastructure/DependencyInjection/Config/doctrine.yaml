@@ -13,6 +13,7 @@ doctrine:
       attachment_size_bytes: App\Notes\Infrastructure\Persistence\Doctrine\Type\FileSizeBytesType
       attachment_storage_key: App\Notes\Infrastructure\Persistence\Doctrine\Type\StorageKeyType
       notes_owner_id: App\Notes\Infrastructure\Persistence\Doctrine\Type\NotesOwnerIdType
+      notes_icon: App\Notes\Infrastructure\Persistence\Doctrine\Type\IconType
       notes_tags: App\Notes\Infrastructure\Persistence\Doctrine\Type\TagsType
       link_id: App\Notes\Infrastructure\Persistence\Doctrine\Type\LinkIdType
       link_title: App\Notes\Infrastructure\Persistence\Doctrine\Type\LinkTitleType

@@ -7,6 +7,7 @@ namespace App\Notes\Infrastructure\Ui\Controllers;
 use App\Core\Infrastructure\Framework\Symfony\Controller\BaseApiController;
 use App\Notes\Application\UpdateNote\UpdateNoteCommand;
 use App\Core\Domain\Exception\InvalidPartialUpdateFieldsException;
+use App\Notes\Domain\Exception\InvalidIcon;
 use App\Notes\Domain\Exception\InvalidTag;
 use App\Notes\Domain\Exception\NoteNotFound;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -45,6 +46,7 @@ class UpdateNoteController extends BaseApiController
                   "minLength": 1,
                   "maxLength": 255
                 },
+                "icon": {"type": ["string", "null"], "maxLength": 32},
                 "content": {
                   "type": "string"
                 },
@@ -65,6 +67,7 @@ class UpdateNoteController extends BaseApiController
         return [
             NoteNotFound::class => Response::HTTP_NOT_FOUND,
             InvalidTag::class => Response::HTTP_UNPROCESSABLE_ENTITY,
+            InvalidIcon::class => Response::HTTP_UNPROCESSABLE_ENTITY,
             InvalidPartialUpdateFieldsException::class => Response::HTTP_UNPROCESSABLE_ENTITY,
         ];
     }

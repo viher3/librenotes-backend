@@ -28,6 +28,7 @@ class NoteDetailResponse implements QueryResponse
         return [
             'id' => $this->note->getId()->value(),
             'title' => $this->note->getTitle()->value(),
+            'icon' => $this->note->getIcon()?->value(),
             'content' => $this->note->getContent()->value(),
             'folder_id' => $this->note->getFolderId()?->value(),
             'parent_note_id' => $this->note->getParentNoteId()?->value(),

@@ -34,6 +34,7 @@ class ListTrashResponse implements QueryResponse
                 static fn (Folder $folder) => [
                     'id' => $folder->getId()->value(),
                     'name' => $folder->getName()->value(),
+                    'icon' => $folder->getIcon()?->value(),
                     'parent_folder_id' => $folder->getParentFolderId()?->value(),
                     'deleted_at' => $folder->getDeletedAt()?->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),
                 ],
@@ -43,6 +44,7 @@ class ListTrashResponse implements QueryResponse
                 static fn (Note $note) => [
                     'id' => $note->getId()->value(),
                     'title' => $note->getTitle()->value(),
+                    'icon' => $note->getIcon()?->value(),
                     'folder_id' => $note->getFolderId()?->value(),
                     'deleted_at' => $note->getDeletedAt()?->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),
                 ],
@@ -52,6 +54,7 @@ class ListTrashResponse implements QueryResponse
                 static fn (Link $link) => [
                     'id' => $link->getId()->value(),
                     'title' => $link->getTitle()->value(),
+                    'icon' => $link->getIcon()?->value(),
                     'url' => $link->getUrl()->value(),
                     'folder_id' => $link->getFolderId()?->value(),
                     'deleted_at' => $link->getDeletedAt()?->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),

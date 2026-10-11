@@ -11,6 +11,7 @@ use App\Notes\Domain\Model\Folder;
 use App\Notes\Domain\Repository\FolderRepository;
 use App\Notes\Domain\ValueObject\FolderId;
 use App\Notes\Domain\ValueObject\FolderName;
+use App\Notes\Domain\ValueObject\Icon;
 use App\Notes\Domain\ValueObject\OwnerId;
 
 class CreateFolderHandler implements TransactionalCommandHandler
@@ -40,7 +41,8 @@ class CreateFolderHandler implements TransactionalCommandHandler
             name: new FolderName($command->name),
             parentFolderId: $parentFolderId,
             ownerId: $ownerId,
-            createdAt: $this->dateTimeProvider->now()
+            createdAt: $this->dateTimeProvider->now(),
+            icon: Icon::fromNullable($command->icon)
         );
 
         $this->folderRepository->save($folder);

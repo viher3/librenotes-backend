@@ -9,6 +9,7 @@ use App\Notes\Application\CreateNote\CreateNoteCommand;
 use App\Notes\Domain\Exception\FolderNotFound;
 use App\Notes\Domain\Exception\InvalidContentLocation;
 use App\Notes\Domain\Exception\ParentNoteNotFound;
+use App\Notes\Domain\Exception\InvalidIcon;
 use App\Notes\Domain\Exception\InvalidTag;
 use App\Notes\Domain\ValueObject\NoteId;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -35,7 +36,8 @@ class CreateNoteController extends BaseApiController
                 parentNoteId: $body['parent_note_id'] ?? null,
                 ownerId: $this->currentUserId(),
                 pinned: (bool) ($body['pinned'] ?? false),
-                tags: $body['tags'] ?? []
+                tags: $body['tags'] ?? [],
+                icon: $body['icon'] ?? null
             )
         );
 
@@ -53,6 +55,7 @@ class CreateNoteController extends BaseApiController
                   "minLength": 1,
                   "maxLength": 255
                 },
+                "icon": {"type": ["string", "null"], "maxLength": 32},
                 "content": {
                   "type": "string"
                 },
@@ -84,6 +87,7 @@ class CreateNoteController extends BaseApiController
             ParentNoteNotFound::class => Response::HTTP_UNPROCESSABLE_ENTITY,
             InvalidContentLocation::class => Response::HTTP_UNPROCESSABLE_ENTITY,
             InvalidTag::class => Response::HTTP_UNPROCESSABLE_ENTITY,
+            InvalidIcon::class => Response::HTTP_UNPROCESSABLE_ENTITY,
         ];
     }
 }

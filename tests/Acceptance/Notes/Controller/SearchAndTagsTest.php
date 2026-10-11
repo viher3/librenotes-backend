@@ -50,7 +50,7 @@ class SearchAndTagsTest extends WebTestCase
         $item = $this->search($api, 'keyword')['data'][0];
 
         $this->assertEqualsCanonicalizing(
-            ['type', 'id', 'title', 'snippet', 'folder_id', 'tags', 'updated_at', 'url'],
+            ['type', 'id', 'title', 'icon', 'snippet', 'folder_id', 'tags', 'updated_at', 'url'],
             array_keys($item)
         );
         $this->assertSame('note', $item['type']);

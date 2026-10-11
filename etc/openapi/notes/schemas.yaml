@@ -13,6 +13,11 @@ components:
     CreateFolderRequest:
       type: object
       properties:
+        icon:
+          type: string
+          maxLength: 32
+          nullable: true
+          description: A single emoji chosen by the user; null means the default icon for the item type.
         name:
           type: string
           minLength: 1
@@ -24,15 +29,19 @@ components:
       required:
         - name
 
-    RenameFolderRequest:
+    UpdateFolderRequest:
       type: object
+      description: The fields to change; the ones that are not sent stay as they are.
       properties:
+        icon:
+          type: string
+          maxLength: 32
+          nullable: true
+          description: A single emoji chosen by the user; null means the default icon for the item type.
         name:
           type: string
           minLength: 1
           maxLength: 255
-      required:
-        - name
 
     MoveFolderRequest:
       type: object
@@ -58,6 +67,11 @@ components:
     CreateNoteRequest:
       type: object
       properties:
+        icon:
+          type: string
+          maxLength: 32
+          nullable: true
+          description: A single emoji chosen by the user; null means the default icon for the item type.
         title:
           type: string
           minLength: 1
@@ -85,6 +99,11 @@ components:
     UpdateNoteRequest:
       type: object
       properties:
+        icon:
+          type: string
+          maxLength: 32
+          nullable: true
+          description: A single emoji chosen by the user; null means the default icon for the item type.
         title:
           type: string
           minLength: 1
@@ -112,6 +131,11 @@ components:
         id:
           type: string
           format: uuid
+        icon:
+          type: string
+          maxLength: 32
+          nullable: true
+          description: A single emoji chosen by the user; null means the default icon for the item type.
         name:
           type: string
         created_at:
@@ -124,6 +148,11 @@ components:
         id:
           type: string
           format: uuid
+        icon:
+          type: string
+          maxLength: 32
+          nullable: true
+          description: A single emoji chosen by the user; null means the default icon for the item type.
         title:
           type: string
         child_count:
@@ -167,6 +196,11 @@ components:
             id:
               type: string
               format: uuid
+            icon:
+              type: string
+              maxLength: 32
+              nullable: true
+              description: A single emoji chosen by the user; null means the default icon for the item type.
             name:
               type: string
             parent_folder_id:
@@ -198,6 +232,11 @@ components:
         id:
           type: string
           format: uuid
+        icon:
+          type: string
+          maxLength: 32
+          nullable: true
+          description: A single emoji chosen by the user; null means the default icon for the item type.
         title:
           type: string
         content:
@@ -270,6 +309,11 @@ components:
               id:
                 type: string
                 format: uuid
+              icon:
+                type: string
+                maxLength: 32
+                nullable: true
+                description: A single emoji chosen by the user; null means the default icon for the item type.
               name:
                 type: string
               parent_folder_id:
@@ -287,6 +331,11 @@ components:
               id:
                 type: string
                 format: uuid
+              icon:
+                type: string
+                maxLength: 32
+                nullable: true
+                description: A single emoji chosen by the user; null means the default icon for the item type.
               title:
                 type: string
               folder_id:
@@ -304,6 +353,11 @@ components:
               id:
                 type: string
                 format: uuid
+              icon:
+                type: string
+                maxLength: 32
+                nullable: true
+                description: A single emoji chosen by the user; null means the default icon for the item type.
               title:
                 type: string
               url:
@@ -365,6 +419,11 @@ components:
         id:
           type: string
           format: uuid
+        icon:
+          type: string
+          maxLength: 32
+          nullable: true
+          description: A single emoji chosen by the user; null means the default icon for the item type.
         title:
           type: string
         folder_id:
@@ -403,6 +462,11 @@ components:
     CreateLinkRequest:
       type: object
       properties:
+        icon:
+          type: string
+          maxLength: 32
+          nullable: true
+          description: A single emoji chosen by the user; null means the default icon for the item type.
         title:
           type: string
           minLength: 1
@@ -432,6 +496,11 @@ components:
     UpdateLinkRequest:
       type: object
       properties:
+        icon:
+          type: string
+          maxLength: 32
+          nullable: true
+          description: A single emoji chosen by the user; null means the default icon for the item type.
         title:
           type: string
           minLength: 1
@@ -464,6 +533,11 @@ components:
         id:
           type: string
           format: uuid
+        icon:
+          type: string
+          maxLength: 32
+          nullable: true
+          description: A single emoji chosen by the user; null means the default icon for the item type.
         title:
           type: string
         url:
@@ -486,6 +560,11 @@ components:
         id:
           type: string
           format: uuid
+        icon:
+          type: string
+          maxLength: 32
+          nullable: true
+          description: A single emoji chosen by the user; null means the default icon for the item type.
         title:
           type: string
         url:
@@ -517,6 +596,11 @@ components:
         id:
           type: string
           format: uuid
+        icon:
+          type: string
+          maxLength: 32
+          nullable: true
+          description: A single emoji chosen by the user; null means the default icon for the item type.
         title:
           type: string
         url:
@@ -563,6 +647,11 @@ components:
         id:
           type: string
           format: uuid
+        icon:
+          type: string
+          maxLength: 32
+          nullable: true
+          description: A single emoji chosen by the user; null means the default icon for the item type.
         title:
           type: string
         snippet:

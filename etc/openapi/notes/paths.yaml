@@ -76,7 +76,7 @@ paths:
 
   /folders/{id}:
     patch:
-      summary: Rename folder
+      summary: Update folder (rename it and/or change its icon)
       tags:
         - Folder
       security:
@@ -94,12 +94,18 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RenameFolderRequest'
+              $ref: '#/components/schemas/UpdateFolderRequest'
       responses:
         '200':
           description: OK
         '400':
           description: Invalid data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: The icon is not a single emoji (`icon.invalid`)
           content:
             application/json:
               schema:

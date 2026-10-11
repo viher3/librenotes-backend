@@ -17,7 +17,8 @@ readonly class CreateNoteCommand implements Command
         public bool $pinned = false,
         /** @var string[] */
         public array $tags = [],
-        public ?string $parentNoteId = null
+        public ?string $parentNoteId = null,
+        public ?string $icon = null
     ) {
     }
 }
