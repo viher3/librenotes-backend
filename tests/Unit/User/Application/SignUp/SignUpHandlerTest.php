@@ -9,6 +9,7 @@ use App\Core\Domain\ValueObject\Uuid;
 use App\Security\Domain\Service\PasswordHasher;
 use App\User\Application\SignUp\SignUpCommand;
 use App\User\Application\SignUp\SignUpHandler;
+use App\User\Domain\Exception\UserRegistrationDisabled;
 use App\User\Domain\Model\User;
 use App\User\Domain\Service\UserNotifier;
 use App\User\Domain\Specification\UniqueEmailSpecificationInterface;
@@ -41,7 +42,7 @@ class SignUpHandlerTest extends TestCase
         $this->passwordHasher->method('hash')->willReturn('hashed-password-value');
     }
 
-    private function handler(bool $sendActivationEmail): SignUpHandler
+    private function handler(bool $sendActivationEmail, bool $registrationEnabled = true): SignUpHandler
     {
         return new SignUpHandler(
             $this->userRepository,
@@ -50,7 +51,8 @@ class SignUpHandlerTest extends TestCase
             $this->uniqueEmailSpecification,
             $this->dateTimeProvider,
             $this->userNotifier,
-            $sendActivationEmail
+            $sendActivationEmail,
+            $registrationEnabled
         );
     }
 
@@ -100,5 +102,21 @@ class SignUpHandlerTest extends TestCase
         $this->userNotifier->expects($this->never())->method('sendActivationEmail');
 
         $this->handler(false)->__invoke($command);
+    }
+
+    public function testSignUpIsRejectedWhenRegistrationIsDisabled(): void
+    {
+        $command = new SignUpCommand(
+            id: Uuid::random()->value(),
+            email: 'test@example.com',
+            password: 'securepassword'
+        );
+
+        $this->userRepository->expects($this->never())->method('save');
+        $this->eventBus->expects($this->never())->method('publish');
+
+        $this->expectException(UserRegistrationDisabled::class);
+
+        $this->handler(true, false)->__invoke($command);
     }
 }

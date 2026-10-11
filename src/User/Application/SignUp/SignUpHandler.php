@@ -9,6 +9,7 @@ use App\Core\Domain\Bus\Event\EventBus;
 use App\Core\Domain\Time\DateTimeProvider;
 use App\Core\Domain\ValueObject\ContactData\EmailValueObject;
 use App\Security\Domain\Service\PasswordHasher;
+use App\User\Domain\Exception\UserRegistrationDisabled;
 use App\User\Domain\Model\User;
 use App\User\Domain\Service\UserNotifier;
 use App\User\Domain\Specification\UniqueEmailSpecificationInterface;
@@ -31,12 +32,17 @@ class SignUpHandler implements TransactionalCommandHandler
         private UniqueEmailSpecificationInterface $uniqueEmailSpecification,
         private DateTimeProvider $dateTimeProvider,
         private UserNotifier $userNotifier,
-        private bool $sendActivationEmail
+        private bool $sendActivationEmail,
+        private bool $registrationEnabled = true
     ) {
     }
 
     public function __invoke(SignUpCommand $command): void
     {
+        if (!$this->registrationEnabled) {
+            throw new UserRegistrationDisabled();
+        }
+
         $now = $this->dateTimeProvider->now();
 
         $user = new User(

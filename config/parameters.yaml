@@ -11,6 +11,7 @@ parameters:
     jwt.key.algorithm: 'RS256'
     jwt.key.ttl: '900' # 15 minutes in seconds
     user.send_activation_email: '%env(bool:USER_SEND_ACTIVATION_EMAIL)%'
+    user.registration_enabled: '%env(bool:USER_REGISTRATION_ENABLED)%'
     app.frontend_url: '%env(resolve:FRONTEND_URL)%'
     notes.attachments_dir: '%kernel.project_dir%/var/storage/attachments'
 

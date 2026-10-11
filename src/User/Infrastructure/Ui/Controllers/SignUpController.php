@@ -7,6 +7,7 @@ namespace App\User\Infrastructure\Ui\Controllers;
 use App\Core\Infrastructure\Framework\Symfony\Controller\BaseApiController;
 use App\User\Application\SignUp\SignUpCommand;
 use App\User\Domain\Exception\UserEmailAlreadyExists;
+use App\User\Domain\Exception\UserRegistrationDisabled;
 use App\User\Domain\ValueObject\UserId;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -69,6 +70,7 @@ class SignUpController extends BaseApiController
     {
         return [
             UserEmailAlreadyExists::class => Response::HTTP_CONFLICT,
+            UserRegistrationDisabled::class => Response::HTTP_FORBIDDEN,
         ];
     }
 }

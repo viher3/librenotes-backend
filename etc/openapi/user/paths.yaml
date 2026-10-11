@@ -70,6 +70,8 @@ paths:
           description: Created
         '400':
           description: Invalid data
+        '403':
+          description: User registration is disabled (USER_REGISTRATION_ENABLED=false)
         '409':
           description: Email already exists
         '500':

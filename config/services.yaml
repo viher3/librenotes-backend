@@ -74,6 +74,7 @@ services:
     App\User\Application\SignUp\SignUpHandler:
         arguments:
             $sendActivationEmail: '%user.send_activation_email%'
+            $registrationEnabled: '%user.registration_enabled%'
 
     App\User\Infrastructure\Notifier\BusUserNotifier:
         arguments:

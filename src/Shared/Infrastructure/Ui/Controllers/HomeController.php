@@ -15,6 +15,7 @@ class HomeController extends ApiController
         return new JsonResponse([
             'app' => $this->getParameter('app.name'),
             'version' => $this->getParameter('app.version'),
+            'registration_enabled' => $this->getParameter('user.registration_enabled'),
         ]);
     }
 
