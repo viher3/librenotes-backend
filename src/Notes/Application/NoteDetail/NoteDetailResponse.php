@@ -35,6 +35,7 @@ class NoteDetailResponse implements QueryResponse
             'path' => $this->path,
             'child_count' => $this->childCount,
             'pinned' => $this->note->isPinned(),
+            'is_encrypted' => $this->note->isEncrypted(),
             'tags' => $this->note->getTags()->names(),
             'created_at' => $this->note->getCreatedAt()->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),
             'updated_at' => $this->note->getUpdatedAt()->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),

@@ -35,6 +35,7 @@ class NoteChildrenResponse implements QueryResponse
                     'title' => $note->getTitle()->value(),
                     'icon' => $note->getIcon()?->value(),
                     'pinned' => $note->isPinned(),
+                    'is_encrypted' => $note->isEncrypted(),
                     'tags' => $note->getTags()->names(),
                     'child_count' => $this->childCounts[$note->getId()->value()] ?? 0,
                     'created_at' => $note->getCreatedAt()->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),

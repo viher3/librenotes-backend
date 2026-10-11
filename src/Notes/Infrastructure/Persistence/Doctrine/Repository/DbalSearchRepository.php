@@ -17,6 +17,8 @@ final class DbalSearchRepository implements SearchRepository
 {
     private const int SNIPPET_LENGTH = 160;
     private const int SNIPPET_LEAD = 50;
+    /** Notes encrypted by the client hold ciphertext: it is never matched nor excerpted (see NoteContent). */
+    private const string ENCRYPTED_CONTENT = "n.content LIKE 'lnenc:%'";
 
     public function __construct(
         private Connection $connection
@@ -30,14 +32,16 @@ final class DbalSearchRepository implements SearchRepository
         $selects = [];
 
         if (in_array(SearchCriteria::TYPE_NOTE, $criteria->types, true)) {
+            $noteBody = 'CASE WHEN ' . self::ENCRYPTED_CONTENT . " THEN '' ELSE n.content END";
             $selects[] = $this->select(
                 type: 'note',
                 table: 'note',
                 alias: 'n',
                 titleColumn: 'n.title',
-                bodyExpr: 'n.content',
+                bodyExpr: $noteBody,
                 urlExpr: 'NULL',
-                matchColumns: ['n.title', 'n.content'],
+                encryptedExpr: self::ENCRYPTED_CONTENT,
+                matchColumns: ['n.title', $noteBody],
                 criteria: $criteria,
                 params: $params
             );
@@ -50,6 +54,7 @@ final class DbalSearchRepository implements SearchRepository
                 titleColumn: 'l.title',
                 bodyExpr: "COALESCE(l.note, '')",
                 urlExpr: 'l.url',
+                encryptedExpr: '0',
                 matchColumns: ['l.title', 'l.note', 'l.url'],
                 criteria: $criteria,
                 params: $params
@@ -87,6 +92,7 @@ final class DbalSearchRepository implements SearchRepository
         string $titleColumn,
         string $bodyExpr,
         string $urlExpr,
+        string $encryptedExpr,
         array $matchColumns,
         SearchCriteria $criteria,
         array &$params
@@ -112,6 +118,7 @@ final class DbalSearchRepository implements SearchRepository
 
         return "(SELECT '$type' AS type, $alias.id AS id, $titleColumn AS title, $alias.icon AS icon, $alias.folder_id AS folder_id, "
             . "$alias.tags AS tags, $alias.updated_at AS updated_at, $urlExpr AS url, $titleRank AS title_rank, "
+            . "($encryptedExpr) AS is_encrypted, "
             . "LOCATE(:raw_term, $bodyExpr) AS pos, "
             . 'SUBSTRING(' . $bodyExpr . ', GREATEST(1, LOCATE(:raw_term, ' . $bodyExpr . ') - ' . self::SNIPPET_LEAD . '), ' . self::SNIPPET_LENGTH . ') AS body_excerpt, '
             . "LEFT($bodyExpr, " . self::SNIPPET_LENGTH . ") AS body_head "
@@ -120,7 +127,7 @@ final class DbalSearchRepository implements SearchRepository
 
     /**
      * @param array<string, mixed> $row
-     * @return array{type: string, id: string, title: string, icon: ?string, snippet: string, folder_id: ?string, tags: string[], updated_at: string, url: ?string}
+     * @return array{type: string, id: string, title: string, icon: ?string, snippet: string, folder_id: ?string, tags: string[], updated_at: string, url: ?string, is_encrypted: bool}
      */
     private function toItem(array $row, SearchCriteria $criteria): array
     {
@@ -149,6 +156,7 @@ final class DbalSearchRepository implements SearchRepository
             'tags' => is_array($tags) ? array_values($tags) : [],
             'updated_at' => (new \DateTimeImmutable((string) $row['updated_at']))->format(\DATE_ATOM),
             'url' => $row['url'] !== null ? (string) $row['url'] : null,
+            'is_encrypted' => (int) $row['is_encrypted'] === 1,
         ];
     }
 }

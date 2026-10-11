@@ -42,6 +42,22 @@ class SearchAndTagsTest extends WebTestCase
         $this->assertSame($byTitle, $result['data'][0]['id'], 'title matches rank first');
     }
 
+    public function testEncryptedContentIsNeverMatchedNorExcerpted(): void
+    {
+        $api = $this->api();
+        $ciphertext = 'lnenc:v1:' . base64_encode('zebra ciphertext');
+        $encrypted = $api->createNote('Secret plan', $ciphertext);
+        $api->createNote('Open plan', 'zebra is in the content');
+
+        $byContent = $this->search($api, 'zebra');
+        $byTitle = $this->search($api, 'Secret');
+
+        $this->assertNotContains($encrypted, $this->ids($byContent), 'ciphertext must not match');
+        $this->assertSame([$encrypted], $this->ids($byTitle), 'the title is still searchable');
+        $this->assertTrue($byTitle['data'][0]['is_encrypted']);
+        $this->assertSame('', $byTitle['data'][0]['snippet']);
+    }
+
     public function testItemShapeAndSnippet(): void
     {
         $api = $this->api();
@@ -50,7 +66,7 @@ class SearchAndTagsTest extends WebTestCase
         $item = $this->search($api, 'keyword')['data'][0];
 
         $this->assertEqualsCanonicalizing(
-            ['type', 'id', 'title', 'icon', 'snippet', 'folder_id', 'tags', 'updated_at', 'url'],
+            ['type', 'id', 'title', 'icon', 'snippet', 'folder_id', 'tags', 'updated_at', 'url', 'is_encrypted'],
             array_keys($item)
         );
         $this->assertSame('note', $item['type']);

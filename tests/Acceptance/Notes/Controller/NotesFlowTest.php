@@ -27,11 +27,25 @@ class NotesFlowTest extends WebTestCase
 
         $this->assertSame(200, $api->status());
         $this->assertEqualsCanonicalizing(
-            ['id', 'title', 'icon', 'content', 'folder_id', 'parent_note_id', 'path', 'child_count', 'pinned', 'tags', 'created_at', 'updated_at', 'attachments'],
+            ['id', 'title', 'icon', 'content', 'folder_id', 'parent_note_id', 'path', 'child_count', 'pinned', 'is_encrypted', 'tags', 'created_at', 'updated_at', 'attachments'],
             array_keys($note)
         );
         $this->assertSame('# Hello', $note['content']);
         $this->assertSame($folderId, $note['folder_id']);
+        $this->assertFalse($note['is_encrypted']);
+    }
+
+    public function testClientEncryptedContentIsFlaggedInDetailAndLists(): void
+    {
+        $api = $this->api();
+        $noteId = $api->createNote('Secret', 'lnenc:v1:' . base64_encode('opaque'));
+
+        $detail = $api->request('GET', '/notes/' . $noteId);
+        $list = $api->request('GET', '/notes');
+
+        $this->assertTrue($detail['is_encrypted']);
+        $listed = array_values(array_filter($list['data'], static fn (array $n) => $n['id'] === $noteId));
+        $this->assertTrue($listed[0]['is_encrypted']);
     }
 
     public function testFolderContentsUsesSnakeCase(): void
@@ -50,7 +64,7 @@ class NotesFlowTest extends WebTestCase
         $this->assertArrayHasKey('parent_folder_id', $contents['folder']);
         $this->assertSame($subfolderId, $contents['subfolders'][0]['id']);
         $this->assertArrayHasKey('created_at', $contents['subfolders'][0]);
-        $this->assertEqualsCanonicalizing(['id', 'title', 'icon', 'pinned', 'tags', 'child_count', 'created_at', 'updated_at'], array_keys($contents['notes'][0]));
+        $this->assertEqualsCanonicalizing(['id', 'title', 'icon', 'pinned', 'is_encrypted', 'tags', 'child_count', 'created_at', 'updated_at'], array_keys($contents['notes'][0]));
         $this->assertEqualsCanonicalizing(
             ['id', 'file_name', 'mime_type', 'size_bytes', 'created_at'],
             array_keys($contents['attachments'][0])

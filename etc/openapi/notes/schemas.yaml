@@ -160,6 +160,9 @@ components:
           description: Live children (notes and links) directly under it.
         pinned:
           type: boolean
+        is_encrypted:
+          type: boolean
+          description: The content is ciphertext produced by the client (it starts with `lnenc:`); the server cannot read it.
         tags:
           $ref: '#/components/schemas/TagNames'
         created_at:
@@ -258,6 +261,9 @@ components:
           description: Live children (notes and links) directly under it.
         pinned:
           type: boolean
+        is_encrypted:
+          type: boolean
+          description: The content is ciphertext produced by the client (it starts with `lnenc:`); the server cannot read it.
         tags:
           $ref: '#/components/schemas/TagNames'
         created_at:
@@ -440,6 +446,9 @@ components:
           description: Live children (notes and links) directly under it.
         pinned:
           type: boolean
+        is_encrypted:
+          type: boolean
+          description: The content is ciphertext produced by the client (it starts with `lnenc:`); the server cannot read it.
         tags:
           $ref: '#/components/schemas/TagNames'
         created_at:
@@ -656,7 +665,10 @@ components:
           type: string
         snippet:
           type: string
-          description: Plain-text excerpt around the first match (may start/end with an ellipsis)
+          description: Plain-text excerpt around the first match (may start/end with an ellipsis). Empty for encrypted notes.
+        is_encrypted:
+          type: boolean
+          description: The note content is encrypted by the client. Only its title and tags are searched.
         folder_id:
           type: string
           format: uuid

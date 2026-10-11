@@ -44,6 +44,7 @@ class ListNotesResponse implements QueryResponse
                     'parent_note_id' => $note->getParentNoteId()?->value(),
                     'child_count' => $this->childCounts[$note->getId()->value()] ?? 0,
                     'pinned' => $note->isPinned(),
+                    'is_encrypted' => $note->isEncrypted(),
                     'tags' => $note->getTags()->names(),
                     'created_at' => $note->getCreatedAt()->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),
                     'updated_at' => $note->getUpdatedAt()->value()->format(Date::DATE_DEFAULT_RENDER_FORMAT),

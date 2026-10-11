@@ -144,6 +144,11 @@ class Note extends AggregateRoot
         return $this->content;
     }
 
+    public function isEncrypted(): bool
+    {
+        return $this->content->isEncrypted();
+    }
+
     public function isPinned(): bool
     {
         return $this->pinned->value();
