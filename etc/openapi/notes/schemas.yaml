@@ -647,51 +647,98 @@ components:
           items:
             $ref: '#/components/schemas/LinkListItem'
 
-    SearchResult:
+    NotesSearchNoteItem:
       type: object
       properties:
-        type:
-          type: string
-          enum: [ note, link ]
         id:
           type: string
           format: uuid
-        icon:
-          type: string
-          maxLength: 32
-          nullable: true
-          description: A single emoji chosen by the user; null means the default icon for the item type.
         title:
           type: string
-        snippet:
+        icon:
           type: string
-          description: Plain-text excerpt around the first match (may start/end with an ellipsis). Empty for encrypted notes.
-        is_encrypted:
-          type: boolean
-          description: The note content is encrypted by the client. Only its title and tags are searched.
+          nullable: true
         folder_id:
           type: string
           format: uuid
           nullable: true
-        tags:
-          $ref: '#/components/schemas/TagNames'
         updated_at:
           type: string
           format: date-time
-        url:
+
+    NotesSearchFolderItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        icon:
           type: string
           nullable: true
-          description: Only for links
+        parent_folder_id:
+          type: string
+          format: uuid
+          nullable: true
 
-    SearchResponse:
+    NotesSearchAttachmentItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        file_name:
+          type: string
+        mime_type:
+          type: string
+        folder_id:
+          type: string
+          format: uuid
+          nullable: true
+        note_id:
+          type: string
+          format: uuid
+          nullable: true
+
+    NotesSearchResponse:
       type: object
       properties:
         meta:
-          $ref: '#/components/schemas/PageMeta'
+          type: object
+          properties:
+            query:
+              type: string
         data:
-          type: array
-          items:
-            $ref: '#/components/schemas/SearchResult'
+          type: object
+          properties:
+            notes:
+              type: object
+              properties:
+                total:
+                  type: integer
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/NotesSearchNoteItem'
+            folders:
+              type: object
+              properties:
+                total:
+                  type: integer
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/NotesSearchFolderItem'
+            attachments:
+              type: object
+              properties:
+                total:
+                  type: integer
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/NotesSearchAttachmentItem'
 
     TagCount:
       type: object

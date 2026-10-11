@@ -27,6 +27,7 @@
             <index name="idx_note_owner_folder" columns="owner_id,folder_id"/>
             <index name="idx_note_owner_parent" columns="owner_id,parent_note_id"/>
             <index name="idx_note_owner_deleted" columns="owner_id,deleted_at"/>
+            <index name="ft_note_title_content" columns="title,content" flags="fulltext"/>
         </indexes>
     </entity>
 </doctrine-mapping>

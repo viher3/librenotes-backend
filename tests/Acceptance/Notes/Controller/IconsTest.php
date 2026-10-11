@@ -99,9 +99,8 @@ class IconsTest extends WebTestCase
         $this->assertSame('🌐', $children['links'][0]['icon']);
 
         $results = $api->request('GET', '/search', null, ['q' => 'unicorn'])['data'];
-        $byId = array_column($results, 'icon', 'id');
+        $byId = array_column($results['notes']['items'], 'icon', 'id');
         $this->assertSame('🦄', $byId[$child]);
-        $this->assertSame('🌐', $byId[$link]);
         $this->assertNull($byId[$parent]);
 
         $api->request('DELETE', '/folders/' . $folder);

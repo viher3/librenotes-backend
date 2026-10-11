@@ -33,6 +33,15 @@ interface FolderRepository
      */
     public function findTrashed(OwnerId $ownerId): array;
 
+    /**
+     * Folders not in trash whose name matches the search term.
+     *
+     * @return Folder[]
+     */
+    public function searchByTerm(string $term, OwnerId $ownerId, int $page, int $perPage): array;
+
+    public function searchByTermCount(string $term, OwnerId $ownerId): int;
+
     public function isDescendantOf(FolderId $candidate, FolderId $ancestor): bool;
 
     public function delete(Folder $folder): void;

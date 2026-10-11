@@ -410,7 +410,7 @@ class NoteTreeTest extends WebTestCase
         $parent = $api->createNote('Parent');
         $child = $this->noteUnder($api, 'Needle in a haystack', $parent, ['tags' => ['deep']]);
 
-        $this->assertSame([$child], $this->ids($api->request('GET', '/search', null, ['q' => 'needle'])['data']));
+        $this->assertSame([$child], $this->ids($api->request('GET', '/search', null, ['q' => 'needle'])['data']['notes']['items']));
         $this->assertSame([['name' => 'deep', 'count' => 1]], $api->request('GET', '/tags')['data']);
     }
 

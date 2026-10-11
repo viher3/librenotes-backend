@@ -48,5 +48,14 @@ interface AttachmentRepository
      */
     public function findTrashed(OwnerId $ownerId): array;
 
+    /**
+     * Attachments not in trash whose file name matches the search term.
+     *
+     * @return Attachment[]
+     */
+    public function searchByTerm(string $term, OwnerId $ownerId, int $page, int $perPage): array;
+
+    public function searchByTermCount(string $term, OwnerId $ownerId): int;
+
     public function delete(Attachment $attachment): void;
 }

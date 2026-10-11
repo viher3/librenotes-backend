@@ -5,36 +5,32 @@ declare(strict_types=1);
 namespace App\Notes\Infrastructure\Ui\Controllers;
 
 use App\Core\Infrastructure\Framework\Symfony\Controller\BaseApiController;
-use App\Notes\Application\Search\SearchQuery;
-use App\Notes\Application\Search\SearchResponse;
-use App\Notes\Domain\Exception\SearchQueryTooShort;
-use App\Notes\Domain\Repository\SearchCriteria;
+use App\Notes\Application\Search\NotesSearchQuery;
+use App\Notes\Application\Search\NotesSearchResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class SearchController extends BaseApiController
 {
+    private const string NIL_UUID = '00000000-0000-0000-0000-000000000000';
+
     public function __invoke(Request $request): JsonResponse
     {
-        $params = $this->getParams($request);
-        $errors = $this->validate($params);
-
-        if ($errors !== []) {
-            return new JsonResponse(['errors' => $errors], Response::HTTP_BAD_REQUEST);
+        if ($badResponse = $this->validateInputData($this->getValidationSchema(), $request)) {
+            return $badResponse;
         }
 
+        $params = $this->getParams($request);
         [$page, $size] = $this->getSearchParams($params);
 
-        /** @var SearchResponse $response */
+        /** @var NotesSearchResponse $response */
         $response = $this->ask(
-            new SearchQuery(
-                ownerId: $this->currentUserId(),
-                q: (string) $params['q'],
-                types: isset($params['type']) ? array_values(array_unique(explode(',', (string) $params['type']))) : [],
-                tag: isset($params['tag']) ? (string) $params['tag'] : null,
-                page: $page,
-                size: $size
+            new NotesSearchQuery(
+                term: $params['q'],
+                ownerId: $this->getUser()?->getUserIdentifier() ?? self::NIL_UUID,
+                types: $this->parseTypes($params['type'] ?? null),
+                page: $page ?? 1,
+                perPage: $size ?? 10
             )
         );
 
@@ -42,29 +38,41 @@ class SearchController extends BaseApiController
     }
 
     /**
-     * @param array<string, mixed> $params
      * @return string[]
      */
-    private function validate(array $params): array
+    private function parseTypes(?string $type): array
     {
-        $errors = [];
-
-        if (!isset($params['q']) || !is_string($params['q'])) {
-            $errors[] = '[q] The property q is required';
-        }
-        if (isset($params['type'])) {
-            $invalid = array_diff(explode(',', (string) $params['type']), SearchCriteria::TYPES);
-            if ($invalid !== []) {
-                $errors[] = '[type] Must be a comma-separated list of: ' . implode(', ', SearchCriteria::TYPES);
-            }
-        }
-        foreach (['page', 'size'] as $name) {
-            if (isset($params[$name]) && (!ctype_digit((string) $params[$name]) || (int) $params[$name] < 1)) {
-                $errors[] = "[$name] Must be a positive integer";
-            }
+        if ($type === null || $type === '') {
+            return [];
         }
 
-        return $errors;
+        return array_values(array_filter(array_map('trim', explode(',', $type))));
+    }
+
+    private function getValidationSchema(): string
+    {
+        return <<<'JSON'
+            {
+              "type": "array",
+              "properties": {
+                "q": {
+                  "type": "string",
+                  "minLength": 2,
+                  "maxLength": 255
+                },
+                "type": {
+                  "type": "string"
+                },
+                "page": {
+                  "type": ["string", "integer"]
+                },
+                "size": {
+                  "type": ["string", "integer"]
+                }
+              },
+              "required": ["q"]
+            }
+            JSON;
     }
 
     /**
@@ -72,8 +80,6 @@ class SearchController extends BaseApiController
      */
     protected function exceptions(): array
     {
-        return [
-            SearchQueryTooShort::class => Response::HTTP_UNPROCESSABLE_ENTITY,
-        ];
+        return [];
     }
 }

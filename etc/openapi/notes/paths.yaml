@@ -1313,80 +1313,54 @@ paths:
                 $ref: '#/components/schemas/ApiError'
 
   /search:
+
     get:
-      summary: Search notes and links
+      summary: Search notes, folders and attachments
       description: >
-        Case- and accent-insensitive substring search over note titles and content and link titles, notes and URLs.
-        Every whitespace-separated term must match (max 8 terms). Items in the trash are excluded. Results whose
-        title matches every term come first, then the most recently updated. `snippet` is a plain-text excerpt
-        around the first match (clients should highlight the terms themselves).
-      tags:
-        - Search
+        Full-text search across the Notes module. Notes are matched by title and
+        content (MySQL FULLTEXT, ranked by relevance); folders and attachments are
+        matched by name (substring match). Results are grouped by type. When `type`
+        narrows the search to a single type, that group is paginated with
+        `page`/`size`; otherwise each group returns up to `size` results without
+        cross-type pagination.
       security:
         - Bearer: [ ]
       parameters:
         - name: q
           in: query
-          description: Search text (at least 2 characters)
           required: true
+          description: Search term, minimum 2 characters.
           schema:
             type: string
             minLength: 2
         - name: type
           in: query
-          description: Comma-separated item types to search
           required: false
+          description: Comma-separated subset of note,folder,attachment. Defaults to all three.
           schema:
             type: string
-            example: note,link
-        - name: tag
-          in: query
-          description: Only items carrying this tag (case-insensitive)
-          required: false
-          schema:
-            type: string
+            example: note,folder
         - name: page
           in: query
-          description: Page number (1-based)
-          required: false
           schema:
-            type: integer
-            minimum: 1
-            default: 1
+            $ref: '#/components/schemas/PageParameter'
         - name: size
           in: query
-          description: Page size (max 100)
-          required: false
           schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            default: 20
+            $ref: '#/components/schemas/ItemsPerPageParameter'
+      tags:
+        - Search
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SearchResponse'
+                $ref: '#/components/schemas/NotesSearchResponse'
         '400':
-          description: Missing `q` or invalid parameter
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiError'
-        '422':
-          description: Query too short (`search.query_too_short`)
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiError'
+          description: Invalid or missing search term
         '401':
-          description: Missing or invalid token
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiError'
+          description: Unauthenticated
 
   /tags:
     get:

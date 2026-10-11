@@ -63,5 +63,14 @@ interface NoteRepository
      */
     public function findTrashed(OwnerId $ownerId): array;
 
+    /**
+     * Notes not in trash whose title or content match the search term, ranked by relevance.
+     *
+     * @return Note[]
+     */
+    public function searchByTerm(string $term, OwnerId $ownerId, int $page, int $perPage): array;
+
+    public function searchByTermCount(string $term, OwnerId $ownerId): int;
+
     public function delete(Note $note): void;
 }

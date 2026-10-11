@@ -1,3 +1,8 @@
+search:
+  path: /search
+  methods: GET
+  controller: App\Notes\Infrastructure\Ui\Controllers\SearchController
+
 create_folder:
   path: /folders
   methods: POST
@@ -157,11 +162,6 @@ permanently_delete_link:
   path: /trash/links/{id}
   methods: DELETE
   controller: App\Notes\Infrastructure\Ui\Controllers\PermanentlyDeleteLinkController
-
-search:
-  path: /search
-  methods: GET
-  controller: App\Notes\Infrastructure\Ui\Controllers\SearchController
 
 list_tags:
   path: /tags

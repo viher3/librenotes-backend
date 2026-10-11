@@ -1,7 +1,7 @@
 services:
 
   symfony-ddd-core-mysql:
-    container_name: symfony-ddd-core-mysql
+    container_name: librenotes-backend-mysql
     image: 'mysql:8.0'
     working_dir: /app
     volumes:
@@ -16,7 +16,7 @@ services:
       - '3306:3306'
 
   symfony-ddd-core-api-server:
-    container_name: symfony-ddd-core-api-nginx
+    container_name: librenotes-backend-api-nginx
     build:
       context: .
       dockerfile: ./etc/docker/nginx/Dockerfile
@@ -28,7 +28,7 @@ services:
       - symfony-ddd-core-api-php
 
   symfony-ddd-core-api-php:
-    container_name: symfony-ddd-core-api-php
+    container_name: librenotes-backend-api-php
     build:
       context: .
       dockerfile: ./etc/docker/php-fpm/Dockerfile
