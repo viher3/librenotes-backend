@@ -15,6 +15,18 @@ services:
     ports:
       - '3306:3306'
 
+  symfony-ddd-core-phpmyadmin:
+    container_name: librenotes-backend-phpmyadmin
+    image: 'phpmyadmin:latest'
+    environment:
+      - PMA_HOST=symfony-ddd-core-mysql
+      - PMA_USER=root
+      - PMA_PASSWORD=root
+    ports:
+      - '8080:80'
+    depends_on:
+      - symfony-ddd-core-mysql
+
   symfony-ddd-core-api-server:
     container_name: librenotes-backend-api-nginx
     build:
