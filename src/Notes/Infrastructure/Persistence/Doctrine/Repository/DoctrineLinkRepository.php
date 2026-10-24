@@ -128,6 +128,35 @@ final class DoctrineLinkRepository extends DoctrineRepository implements LinkRep
             ->getResult();
     }
 
+    public function searchByTerm(string $term, OwnerId $ownerId, int $page, int $perPage): array
+    {
+        return $this->searchByTermQueryBuilder($term, $ownerId)
+            ->setFirstResult(($page - 1) * $perPage)
+            ->setMaxResults($perPage)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function searchByTermCount(string $term, OwnerId $ownerId): int
+    {
+        return (int) $this->searchByTermQueryBuilder($term, $ownerId)
+            ->select('COUNT(l.id)')
+            ->resetDQLPart('orderBy')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    private function searchByTermQueryBuilder(string $term, OwnerId $ownerId): QueryBuilder
+    {
+        return $this->createQueryBuilder('l')
+            ->andWhere('l.ownerId = :ownerId')
+            ->andWhere('l.deletedAt IS NULL')
+            ->andWhere('l.title LIKE :term OR l.url LIKE :term')
+            ->setParameter('ownerId', $ownerId->value())
+            ->setParameter('term', '%' . self::escapeLikeTerm($term) . '%')
+            ->orderBy('l.title', 'asc');
+    }
+
     private function byParentQueryBuilder(NoteId $parentId, OwnerId $ownerId): QueryBuilder
     {
         return $this->createQueryBuilder('l')

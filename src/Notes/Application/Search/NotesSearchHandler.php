@@ -7,9 +7,11 @@ namespace App\Notes\Application\Search;
 use App\Core\Application\Query\QueryHandler;
 use App\Notes\Domain\Model\Attachment;
 use App\Notes\Domain\Model\Folder;
+use App\Notes\Domain\Model\Link;
 use App\Notes\Domain\Model\Note;
 use App\Notes\Domain\Repository\AttachmentRepository;
 use App\Notes\Domain\Repository\FolderRepository;
+use App\Notes\Domain\Repository\LinkRepository;
 use App\Notes\Domain\Repository\NoteRepository;
 use App\Notes\Domain\ValueObject\OwnerId;
 use App\Notes\Domain\ValueObject\SearchResultType;
@@ -19,7 +21,8 @@ class NotesSearchHandler implements QueryHandler
     public function __construct(
         private NoteRepository $noteRepository,
         private FolderRepository $folderRepository,
-        private AttachmentRepository $attachmentRepository
+        private AttachmentRepository $attachmentRepository,
+        private LinkRepository $linkRepository
     ) {
     }
 
@@ -52,13 +55,19 @@ class NotesSearchHandler implements QueryHandler
                 SearchResultType::Attachment,
                 fn () => $this->attachmentRepository->searchByTerm($query->term, $ownerId, $page, $query->perPage),
                 fn () => $this->attachmentRepository->searchByTermCount($query->term, $ownerId)
+            ),
+            links: $this->searchGroup(
+                $types,
+                SearchResultType::Link,
+                fn () => $this->linkRepository->searchByTerm($query->term, $ownerId, $page, $query->perPage),
+                fn () => $this->linkRepository->searchByTermCount($query->term, $ownerId)
             )
         );
     }
 
     /**
      * @param SearchResultType[] $types
-     * @return array{items: list<Note|Folder|Attachment>, total: int}
+     * @return array{items: list<Note|Folder|Attachment|Link>, total: int}
      */
     private function searchGroup(array $types, SearchResultType $type, \Closure $items, \Closure $total): array
     {

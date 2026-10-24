@@ -50,7 +50,8 @@ class CreateUserController extends BaseApiController
                 },
                 "password": {
                   "type": "string",
-                  "minLength": 8
+                  "minLength": 8,
+                  "maxLength": 44
                 },
                 "username": {
                   "type": ["string", "null"],

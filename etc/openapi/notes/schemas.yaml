@@ -701,6 +701,31 @@ components:
           format: uuid
           nullable: true
 
+    NotesSearchLinkItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        icon:
+          type: string
+          nullable: true
+        url:
+          type: string
+        folder_id:
+          type: string
+          format: uuid
+          nullable: true
+        parent_note_id:
+          type: string
+          format: uuid
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+
     NotesSearchResponse:
       type: object
       properties:
@@ -739,6 +764,15 @@ components:
                   type: array
                   items:
                     $ref: '#/components/schemas/NotesSearchAttachmentItem'
+            links:
+              type: object
+              properties:
+                total:
+                  type: integer
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/NotesSearchLinkItem'
 
     TagCount:
       type: object

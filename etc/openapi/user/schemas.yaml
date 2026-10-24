@@ -11,6 +11,8 @@ components:
           type: string
         password:
           type: string
+          minLength: 8
+          maxLength: 44
         username:
           type: string
 
@@ -29,6 +31,7 @@ components:
         password:
           type: string
           minLength: 8
+          maxLength: 44
         username:
           type: string
       required:
