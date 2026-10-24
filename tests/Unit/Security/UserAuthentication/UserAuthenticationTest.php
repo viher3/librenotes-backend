@@ -16,6 +16,7 @@ use App\Security\Domain\Service\RefreshTokenGenerator;
 use App\Security\Domain\Service\TokenEncoderDecoder;
 use App\User\Domain\Model\User;
 use App\User\Domain\UserRepository;
+use App\User\Domain\ValueObject\TokenVersion;
 use App\User\Domain\ValueObject\UserId;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -58,6 +59,7 @@ class UserAuthenticationTest extends TestCase
     {
         $user = $this->createMock(User::class);
         $user->method('getId')->willReturn(new UserId(self::USER_ID));
+        $user->method('getTokenVersion')->willReturn(new TokenVersion(3));
         $user->method('isActive')->willReturn(true);
 
         $command = new UserAuthenticationCommand('test@example.com', 'password123', '127.0.0.1');
@@ -82,7 +84,7 @@ class UserAuthenticationTest extends TestCase
             ->with($user);
 
         $this->tokenEncoderDecoder->method('encode')
-            ->with(['id' => self::USER_ID])
+            ->with(['id' => self::USER_ID, 'token_version' => 3])
             ->willReturn('generated-token');
 
         $this->refreshTokenGenerator->method('generate')
@@ -163,6 +165,7 @@ class UserAuthenticationTest extends TestCase
     {
         $user = $this->createMock(User::class);
         $user->method('getId')->willReturn(new UserId(self::USER_ID));
+        $user->method('getTokenVersion')->willReturn(new TokenVersion(3));
         $user->method('isActive')->willReturn(true);
 
         $command = new UserAuthenticationCommand('test@example.com', 'password123', '127.0.0.1');
@@ -187,7 +190,7 @@ class UserAuthenticationTest extends TestCase
             ->with('Error updating last user login value: Database error');
 
         $this->tokenEncoderDecoder->method('encode')
-            ->with(['id' => self::USER_ID])
+            ->with(['id' => self::USER_ID, 'token_version' => 3])
             ->willReturn('generated-token');
 
         $this->refreshTokenGenerator->method('generate')

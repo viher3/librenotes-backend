@@ -76,6 +76,11 @@ services:
             $sendActivationEmail: '%user.send_activation_email%'
             $registrationEnabled: '%user.registration_enabled%'
 
+    App\User\Infrastructure\EventHandler\SymfonyUserPasswordChangedEventHandler:
+        arguments:
+            # Same switch as the activation email: one flag tells whether the instance can send user emails.
+            $emailsEnabled: '%user.send_activation_email%'
+
     App\User\Infrastructure\Notifier\BusUserNotifier:
         arguments:
             $frontendUrl: '%app.frontend_url%'

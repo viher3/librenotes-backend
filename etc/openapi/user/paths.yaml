@@ -207,19 +207,16 @@ paths:
         '500':
           description: Internal server error
 
-  /users/{id}/change-password:
+  /me/password:
     patch:
-      summary: Update user password
+      summary: Change the current user's password
+      description: >
+        Replaces the password of the authenticated user. The current password is always verified and
+        the new one must be different (8-44 characters). On success every token issued before the
+        change stops working, so the client must log in again, and a notice email is sent.
+        Three wrong current passwords lock the endpoint for that user (429 with Retry-After).
       security:
         - Bearer: [ ]
-      parameters:
-        - name: id
-          in: path
-          description: User ID
-          required: true
-          schema:
-            type: string
-            format: uuid
       tags:
         - User
       requestBody:
@@ -227,15 +224,42 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ChangeUserPasswordRequest'
+              $ref: '#/components/schemas/ChangeCurrentUserPasswordRequest'
       responses:
-        '200':
-          description: Password updated correctly
+        '204':
+          description: Password changed
         '400':
-          description: Invalid data
+          description: Invalid data (missing field, wrong type or new password outside 8-44 characters)
         '401':
-          description: Unauthorized
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         '404':
-          description: User not found
+          description: The user no longer exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: >
+            `user.invalid_password` (wrong current password), `user.password_unchanged`
+            (new equals current) or `user.invalid_new_password`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          description: Too many failed attempts (`user.change_password_rate_limited`)
+          headers:
+            Retry-After:
+              description: Seconds until a new attempt is accepted
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         '500':
           description: Internal server error

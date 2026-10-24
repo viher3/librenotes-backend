@@ -27,4 +27,23 @@ class BusUserNotifierTest extends TestCase
 
         $notifier->sendActivationEmail(new EmailValueObject('test@example.com'), 'abc123');
     }
+
+    public function testSendsAPasswordChangedEmailInTheUsersLocale(): void
+    {
+        $commandBus = $this->createMock(SymfonyTransactionalCommandBus::class);
+        $notifier = new BusUserNotifier($commandBus, 'https://app.example.com/');
+
+        $commandBus
+            ->expects($this->once())
+            ->method('__invoke')
+            ->with($this->callback(function (SendNotificationCommand $command) {
+                return $command->channel === 'email'
+                    && $command->templateKey === 'user.password_changed'
+                    && $command->recipient === 'test@example.com'
+                    && $command->locale === 'es'
+                    && $command->payload === [];
+            }));
+
+        $notifier->sendPasswordChangedEmail(new EmailValueObject('test@example.com'), 'es');
+    }
 }

@@ -907,12 +907,6 @@ parameters:
 			path: src/User/Domain/Event/UserCreated.php
 
 		-
-			message: '#^Method App\\User\\Domain\\Exception\\ErrorUserChangePassword\:\:params\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/User/Domain/Exception/ErrorUserChangePassword.php
-
-		-
 			message: '#^Method App\\User\\Domain\\Exception\\InvalidUserPassword\:\:params\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -947,12 +941,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/User/Infrastructure/Persistence/Doctrine/Repository/DoctrineUserRepository.php
-
-		-
-			message: '#^Method App\\User\\Infrastructure\\Ui\\Controllers\\ChangeUserPasswordController\:\:exceptions\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/User/Infrastructure/Ui/Controllers/ChangeUserPasswordController.php
 
 		-
 			message: '#^Method App\\User\\Infrastructure\\Ui\\Controllers\\CreateUserController\:\:exceptions\(\) return type has no value type specified in iterable type array\.$#'

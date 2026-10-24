@@ -11,6 +11,7 @@ use App\Core\Domain\ValueObject\ContactData\EmailValueObject;
 use App\Core\Domain\ValueObject\DateTimeValueObject;
 use App\Shared\Domain\Time\Date;
 use App\User\Domain\Event\UserCreated;
+use App\User\Domain\Event\UserPasswordChanged;
 use App\User\Domain\Specification\UniqueEmailSpecificationInterface;
 use App\User\Domain\ValueObject\ActivationToken;
 use App\User\Domain\ValueObject\HashedPassword;
@@ -115,6 +116,26 @@ class User extends AggregateRoot implements PasswordAuthenticatedUserInterface, 
     {
         $this->password = $password;
         $this->passwordRecoveryRequestedAt = null;
+    }
+
+    /**
+     * Replaces an already established password: revokes the sessions issued so far (token version) and
+     * records UserPasswordChanged. Setting the initial password (signup, admin creation) uses changePassword().
+     */
+    public function updatePassword(HashedPassword $password, \DateTimeInterface $now): void
+    {
+        $this->changePassword($password);
+        $this->increaseTokenVersion();
+
+        $this->record(
+            new UserPasswordChanged(
+                id: $this->getId()->value(),
+                email: $this->getEmail()->value(),
+                locale: $this->getLocale()->value(),
+                eventId: EventId::random()->value(),
+                occurredOn: $now->format(Date::DATE_DEFAULT_RENDER_FORMAT),
+            )
+        );
     }
 
     /**
