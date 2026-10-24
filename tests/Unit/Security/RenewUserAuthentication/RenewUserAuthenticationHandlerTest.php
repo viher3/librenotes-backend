@@ -21,6 +21,9 @@ use App\Security\Domain\ValueObject\IpAddress;
 use App\Security\Domain\ValueObject\Jti;
 use App\Security\Domain\ValueObject\RefreshTokenId;
 use App\Security\Domain\ValueObject\TokenHash;
+use App\User\Domain\Model\User;
+use App\User\Domain\UserRepository;
+use App\User\Domain\ValueObject\TokenVersion;
 use App\User\Domain\ValueObject\UserId;
 use PHPUnit\Framework\TestCase;
 
@@ -34,6 +37,7 @@ class RenewUserAuthenticationHandlerTest extends TestCase
     private TokenEncoderDecoder $tokenEncoderDecoder;
     private LoginRateLimiter $loginRateLimiter;
     private DateTimeProvider $dateTimeProvider;
+    private UserRepository $userRepository;
     private RenewUserAuthenticationHandler $handler;
 
     protected function setUp(): void
@@ -43,13 +47,15 @@ class RenewUserAuthenticationHandlerTest extends TestCase
         $this->tokenEncoderDecoder = $this->createMock(TokenEncoderDecoder::class);
         $this->loginRateLimiter = $this->createMock(LoginRateLimiter::class);
         $this->dateTimeProvider = $this->createMock(DateTimeProvider::class);
+        $this->userRepository = $this->createMock(UserRepository::class);
 
         $this->handler = new RenewUserAuthenticationHandler(
             $this->refreshTokenRepository,
             $this->refreshTokenGenerator,
             $this->tokenEncoderDecoder,
             $this->loginRateLimiter,
-            $this->dateTimeProvider
+            $this->dateTimeProvider,
+            $this->userRepository
         );
     }
 
@@ -126,8 +132,24 @@ class RenewUserAuthenticationHandlerTest extends TestCase
         ($this->handler)(new RenewUserAuthenticationCommand('plain-refresh-token', '127.0.0.1'));
     }
 
+    public function testThrowsInvalidTokenExceptionWhenUserNoLongerExists(): void
+    {
+        $this->refreshTokenRepository->method('findByTokenHash')->willReturn($this->buildRefreshToken());
+        $this->dateTimeProvider->method('now')->willReturn(new \DateTimeImmutable());
+        $this->userRepository->method('getById')->willReturn(null);
+
+        $this->expectException(InvalidTokenException::class);
+
+        ($this->handler)(new RenewUserAuthenticationCommand('plain-refresh-token', '127.0.0.1'));
+    }
+
     public function testRotatesRefreshTokenOnSuccessfulRenewal(): void
     {
+        $user = $this->createMock(User::class);
+        $user->method('getId')->willReturn(new UserId(self::USER_ID));
+        $user->method('getTokenVersion')->willReturn(new TokenVersion(2));
+        $this->userRepository->method('getById')->with(self::USER_ID)->willReturn($user);
+
         $refreshToken = $this->buildRefreshToken();
         $now = new \DateTimeImmutable();
 
@@ -140,7 +162,7 @@ class RenewUserAuthenticationHandlerTest extends TestCase
             ->willReturn($newRefreshToken);
 
         $this->tokenEncoderDecoder->method('encode')
-            ->with(['id' => self::USER_ID])
+            ->with(['id' => self::USER_ID, 'token_version' => 2])
             ->willReturn('new-access-token');
 
         $this->refreshTokenRepository->expects($this->once())

@@ -41,6 +41,21 @@ class CreateUserControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(400);
     }
 
+    public function testCreateUserWithATooLongPasswordReturnsBadRequest(): void
+    {
+        $client = static::createClient();
+        $adminLogin = new AdminLoginService();
+        $client = $adminLogin->execute($client);
+
+        (new CreateUserService())->execute(
+            client: $client,
+            password: str_repeat('a', 45),
+            authorizationHeader: 'Bearer ' . $adminLogin->getAccessToken()
+        );
+
+        $this->assertResponseStatusCodeSame(400);
+    }
+
     public function testCreateUserWithDuplicateEmailReturnsConflict(): void
     {
         $email = Faker::create()->email();

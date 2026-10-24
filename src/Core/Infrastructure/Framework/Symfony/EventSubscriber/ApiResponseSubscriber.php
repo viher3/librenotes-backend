@@ -27,7 +27,12 @@ class ApiResponseSubscriber implements EventSubscriberInterface
         $params = $event->getRequest()->query->all();
         $response = $this->normalizeResult($response, $params);
 
-        $response = new JsonResponse($response, $event->getResponse()->getStatusCode());
+        // Keep the headers the original response carried (e.g. Retry-After on a 429).
+        $response = new JsonResponse(
+            $response,
+            $event->getResponse()->getStatusCode(),
+            $event->getResponse()->headers->allPreserveCase()
+        );
         $event->setResponse($response);
     }
 

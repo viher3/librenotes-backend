@@ -60,7 +60,8 @@ class UserAuthenticationHandler implements CommandHandler
 
         // access token
         $accessToken = $this->tokenEncoderDecoder->encode([
-            'id' => $user->getId()->value()
+            'id' => $user->getId()->value(),
+            'token_version' => $user->getTokenVersion()->value(),
         ]);
 
         // refresh token

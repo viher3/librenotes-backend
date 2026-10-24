@@ -23,10 +23,10 @@ update_user:
   methods: PATCH
   controller: App\User\Infrastructure\Ui\Controllers\UpdateUserController
 
-change_password_user:
-  path: /users/{id}/change-password
+change_current_user_password:
+  path: /me/password
   methods: PATCH
-  controller: App\User\Infrastructure\Ui\Controllers\ChangeUserPasswordController
+  controller: App\User\Infrastructure\Ui\Controllers\ChangeCurrentUserPasswordController
 
 delete_user:
   path: /users/{id}

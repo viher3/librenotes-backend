@@ -10,6 +10,7 @@ use App\Notes\Application\Search\NotesSearchResponse;
 use App\Notes\Domain\Model\Note;
 use App\Notes\Domain\Repository\AttachmentRepository;
 use App\Notes\Domain\Repository\FolderRepository;
+use App\Notes\Domain\Repository\LinkRepository;
 use App\Notes\Domain\Repository\NoteRepository;
 use App\Notes\Domain\ValueObject\NoteContent;
 use App\Notes\Domain\ValueObject\NoteId;
@@ -22,6 +23,7 @@ class NotesSearchHandlerTest extends TestCase
     private NoteRepository $noteRepository;
     private FolderRepository $folderRepository;
     private AttachmentRepository $attachmentRepository;
+    private LinkRepository $linkRepository;
     private NotesSearchHandler $handler;
 
     protected function setUp(): void
@@ -29,11 +31,13 @@ class NotesSearchHandlerTest extends TestCase
         $this->noteRepository = $this->createMock(NoteRepository::class);
         $this->folderRepository = $this->createMock(FolderRepository::class);
         $this->attachmentRepository = $this->createMock(AttachmentRepository::class);
+        $this->linkRepository = $this->createMock(LinkRepository::class);
 
         $this->handler = new NotesSearchHandler(
             $this->noteRepository,
             $this->folderRepository,
-            $this->attachmentRepository
+            $this->attachmentRepository,
+            $this->linkRepository
         );
     }
 
@@ -67,6 +71,12 @@ class NotesSearchHandlerTest extends TestCase
             ->willReturn([]);
         $this->attachmentRepository->method('searchByTermCount')->willReturn(0);
 
+        $this->linkRepository->expects($this->once())
+            ->method('searchByTerm')
+            ->with('invoice', $this->isInstanceOf(OwnerId::class), 1, 10)
+            ->willReturn([]);
+        $this->linkRepository->method('searchByTermCount')->willReturn(0);
+
         // A page other than 1 is requested, but a multi-type (global) search
         // has no cross-type ranking, so it must always query at page 1.
         $response = ($this->handler)(new NotesSearchQuery(
@@ -86,6 +96,7 @@ class NotesSearchHandlerTest extends TestCase
         $this->assertSame('Invoice March', $result['data']['notes']['items'][0]['title']);
         $this->assertSame(0, $result['data']['folders']['total']);
         $this->assertSame(0, $result['data']['attachments']['total']);
+        $this->assertSame(0, $result['data']['links']['total']);
     }
 
     public function testSearchingASingleTypeOnlyQueriesThatRepositoryAndKeepsThePage(): void
@@ -100,6 +111,7 @@ class NotesSearchHandlerTest extends TestCase
 
         $this->folderRepository->expects($this->never())->method('searchByTerm');
         $this->attachmentRepository->expects($this->never())->method('searchByTerm');
+        $this->linkRepository->expects($this->never())->method('searchByTerm');
 
         $response = ($this->handler)(new NotesSearchQuery(
             term: 'invoice',
@@ -112,6 +124,7 @@ class NotesSearchHandlerTest extends TestCase
         $result = $response->getResult();
         $this->assertSame(0, $result['data']['folders']['total']);
         $this->assertSame(0, $result['data']['attachments']['total']);
+        $this->assertSame(0, $result['data']['links']['total']);
     }
 
     public function testUnknownTypeTokensMatchNothing(): void
@@ -119,6 +132,7 @@ class NotesSearchHandlerTest extends TestCase
         $this->noteRepository->expects($this->never())->method('searchByTerm');
         $this->folderRepository->expects($this->never())->method('searchByTerm');
         $this->attachmentRepository->expects($this->never())->method('searchByTerm');
+        $this->linkRepository->expects($this->never())->method('searchByTerm');
 
         $response = ($this->handler)(new NotesSearchQuery(
             term: 'invoice',
@@ -130,5 +144,6 @@ class NotesSearchHandlerTest extends TestCase
         $this->assertSame(0, $result['data']['notes']['total']);
         $this->assertSame(0, $result['data']['folders']['total']);
         $this->assertSame(0, $result['data']['attachments']['total']);
+        $this->assertSame(0, $result['data']['links']['total']);
     }
 }

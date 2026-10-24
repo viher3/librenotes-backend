@@ -50,6 +50,22 @@ class SignUpControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(400);
     }
 
+    public function testSignUpWithATooLongPasswordReturnsBadRequest(): void
+    {
+        $client = static::createClient();
+
+        $client->request(
+            'POST',
+            '/signup',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['email' => Faker::create()->email(), 'password' => str_repeat('a', 45)])
+        );
+
+        $this->assertResponseStatusCodeSame(400);
+    }
+
     public function testSignUpWithEmptyBodyReturnsBadRequest(): void
     {
         $client = static::createClient();

@@ -41,7 +41,13 @@ class ApiExceptionSubscriber
 
         $this->log($exception, $statusCode, $responseData);
 
-        $event->setResponse(new JsonResponse($responseData, $statusCode));
+        $headers = [];
+        $retryAfter = $responseData['params']['retry_after'] ?? null;
+        if ($statusCode === Response::HTTP_TOO_MANY_REQUESTS && is_int($retryAfter)) {
+            $headers['Retry-After'] = (string) $retryAfter;
+        }
+
+        $event->setResponse(new JsonResponse($responseData, $statusCode, $headers));
     }
 
     private function resolveStatusCode(Throwable $exception): int

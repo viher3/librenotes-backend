@@ -9,4 +9,5 @@ enum SearchResultType: string
     case Note = 'note';
     case Folder = 'folder';
     case Attachment = 'attachment';
+    case Link = 'link';
 }

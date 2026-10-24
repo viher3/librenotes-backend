@@ -20,6 +20,7 @@ use App\User\Domain\Service\UserNotifier;
 final class BusUserNotifier implements UserNotifier
 {
     private const ACTIVATION_TEMPLATE_KEY = 'user.activation';
+    private const PASSWORD_CHANGED_TEMPLATE_KEY = 'user.password_changed';
 
     public function __construct(
         private readonly SymfonyTransactionalCommandBus $commandBus,
@@ -37,6 +38,17 @@ final class BusUserNotifier implements UserNotifier
             payload: [
                 'activation_link' => rtrim($this->frontendUrl, '/') . '/activate-account?token=' . $activationToken,
             ],
+        ));
+    }
+
+    public function sendPasswordChangedEmail(EmailValueObject $email, string $locale): void
+    {
+        $this->commandBus->__invoke(new SendNotificationCommand(
+            id: Uuid::random()->value(),
+            channel: 'email',
+            templateKey: self::PASSWORD_CHANGED_TEMPLATE_KEY,
+            recipient: $email->value(),
+            locale: $locale,
         ));
     }
 }

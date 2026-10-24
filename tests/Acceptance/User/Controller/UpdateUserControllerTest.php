@@ -35,18 +35,4 @@ class UpdateUserControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
     }
-
-    public function testChangePasswordRequiresBothPasswords(): void
-    {
-        $client = static::createClient();
-        $login = new LoginService();
-        $login->execute($client);
-        $uri = '/users/' . $login->getUserId() . '/change-password';
-
-        $errors = $this->patch($client, $uri, [], $login->getAccessToken())['errors'];
-
-        $this->assertResponseStatusCodeSame(400);
-        $this->assertContains('[currentPassword] The property currentPassword is required', $errors);
-        $this->assertContains('[newPassword] The property newPassword is required', $errors);
-    }
 }

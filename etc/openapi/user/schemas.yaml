@@ -11,6 +11,8 @@ components:
           type: string
         password:
           type: string
+          minLength: 8
+          maxLength: 44
         username:
           type: string
 
@@ -29,6 +31,7 @@ components:
         password:
           type: string
           minLength: 8
+          maxLength: 44
         username:
           type: string
       required:
@@ -127,20 +130,23 @@ components:
         last:
           type: integer
 
-    ChangeUserPasswordRequest:
+    ChangeCurrentUserPasswordRequest:
       type: object
       properties:
-        currentPassword:
+        current_password:
           type: string
-          minLength: 8
-          maxLength: 20
-        newPassword:
+          format: password
+          minLength: 1
+          maxLength: 44
+        new_password:
           type: string
+          format: password
           minLength: 8
-          maxLength: 20
+          maxLength: 44
       required:
-        - currentPassword
-        - newPassword
+        - current_password
+        - new_password
+      additionalProperties: false
 
     CurrentUserResponse:
       type: object

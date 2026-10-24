@@ -8,7 +8,7 @@ readonly class ChangePasswordCommand implements Command
 {
     public function __construct(
         public string $userId,
-        public string $oldPassword,
+        public string $currentPassword,
         public string $newPassword,
     )
     {

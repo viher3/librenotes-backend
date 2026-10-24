@@ -55,5 +55,14 @@ interface LinkRepository
      */
     public function findTrashed(OwnerId $ownerId): array;
 
+    /**
+     * Links not in trash whose title or URL matches the search term.
+     *
+     * @return Link[]
+     */
+    public function searchByTerm(string $term, OwnerId $ownerId, int $page, int $perPage): array;
+
+    public function searchByTermCount(string $term, OwnerId $ownerId): int;
+
     public function delete(Link $link): void;
 }

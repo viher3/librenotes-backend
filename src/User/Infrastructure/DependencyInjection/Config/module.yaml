@@ -1,2 +1,3 @@
 imports:
   - { resource: doctrine.yaml }
+  - { resource: rate_limiter.yaml }

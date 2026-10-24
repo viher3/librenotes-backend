@@ -6,10 +6,12 @@ namespace App\Tests\Acceptance\Notes\Controller;
 
 use App\Core\Infrastructure\Bus\Command\SymfonyTransactionalCommandBus;
 use App\Notes\Application\CreateFolder\CreateFolderCommand;
+use App\Notes\Application\CreateLink\CreateLinkCommand;
 use App\Notes\Application\CreateNote\CreateNoteCommand;
 use App\Notes\Application\UploadAttachment\UploadAttachmentCommand;
 use App\Notes\Domain\ValueObject\AttachmentId;
 use App\Notes\Domain\ValueObject\FolderId;
+use App\Notes\Domain\ValueObject\LinkId;
 use App\Notes\Domain\ValueObject\NoteId;
 use App\Tests\Acceptance\Security\Service\LoginService;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -56,6 +58,16 @@ class SearchControllerTest extends WebTestCase
         ));
         unlink($tmpFile);
 
+        $linkId = LinkId::random()->value();
+        $bus->__invoke(new CreateLinkCommand(
+            id: $linkId,
+            title: 'Billing portal',
+            url: 'https://example.com/invoice/list',
+            note: null,
+            folderId: null,
+            ownerId: $ownerId
+        ));
+
         $client->request('GET', '/search?q=invoice', [], [], [
             'HTTP_AUTHORIZATION' => 'Bearer ' . $loginService->getAccessToken(),
         ]);
@@ -74,6 +86,10 @@ class SearchControllerTest extends WebTestCase
 
         $this->assertSame(1, $data['data']['attachments']['total']);
         $this->assertSame($attachmentId, $data['data']['attachments']['items'][0]['id']);
+
+        $this->assertSame(1, $data['data']['links']['total']);
+        $this->assertSame($linkId, $data['data']['links']['items'][0]['id']);
+        $this->assertSame('https://example.com/invoice/list', $data['data']['links']['items'][0]['url']);
     }
 
     public function testSearchRestrictedToASingleTypePaginatesThatTypeOnly(): void

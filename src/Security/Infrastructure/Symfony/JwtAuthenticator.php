@@ -7,6 +7,7 @@ namespace App\Security\Infrastructure\Symfony;
 use App\Security\Domain\Exception\ExpiredTokenException;
 use App\Security\Domain\Exception\InvalidTokenException;
 use App\Security\Domain\Service\TokenEncoderDecoder;
+use App\Security\Infrastructure\Symfony\UserProvider\AppUserProvider;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,7 +26,8 @@ class JwtAuthenticator extends AbstractAuthenticator implements AuthenticationEn
     private const string BEARER_PREFIX = 'Bearer ';
 
     public function __construct(
-        private TokenEncoderDecoder $tokenEncoderDecoder
+        private TokenEncoderDecoder $tokenEncoderDecoder,
+        private AppUserProvider $userProvider
     ) {
     }
 
@@ -50,7 +52,21 @@ class JwtAuthenticator extends AbstractAuthenticator implements AuthenticationEn
             throw new CustomUserMessageAuthenticationException('Invalid token');
         }
 
-        return new SelfValidatingPassport(new UserBadge((string) $payload['id']));
+        // Tokens issued before token versioning carry no claim: they count as version 1.
+        $tokenVersion = (int) ($payload['token_version'] ?? 1);
+
+        return new SelfValidatingPassport(
+            new UserBadge((string) $payload['id'], function (string $identifier) use ($tokenVersion) {
+                $user = $this->userProvider->loadUserByIdentifier($identifier);
+
+                // A password change bumps the user's token version, which revokes every token issued earlier.
+                if ($user->getTokenVersion()->value() !== $tokenVersion) {
+                    throw new CustomUserMessageAuthenticationException('Invalid token');
+                }
+
+                return $user;
+            })
+        );
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response

@@ -12,6 +12,7 @@ use App\Security\Domain\Repository\RefreshTokenRepository;
 use App\Security\Domain\Service\LoginRateLimiter;
 use App\Security\Domain\Service\RefreshTokenGenerator;
 use App\Security\Domain\Service\TokenEncoderDecoder;
+use App\User\Domain\UserRepository;
 use App\User\Domain\ValueObject\UserId;
 
 class RenewUserAuthenticationHandler implements TransactionalCommandHandler
@@ -22,6 +23,7 @@ class RenewUserAuthenticationHandler implements TransactionalCommandHandler
         private TokenEncoderDecoder $tokenEncoderDecoder,
         private LoginRateLimiter $loginRateLimiter,
         private DateTimeProvider $dateTimeProvider,
+        private UserRepository $userRepository,
     ) {
     }
 
@@ -46,6 +48,12 @@ class RenewUserAuthenticationHandler implements TransactionalCommandHandler
             throw new ExpiredTokenException();
         }
 
+        $user = $this->userRepository->getById($refreshToken->getUserId()->value());
+
+        if (!$user) {
+            throw new InvalidTokenException();
+        }
+
         $refreshToken->updateLastUsed($this->dateTimeProvider->now());
 
         $newRefreshToken = $this->refreshTokenGenerator->generate($refreshToken->getUserId());
@@ -54,7 +62,8 @@ class RenewUserAuthenticationHandler implements TransactionalCommandHandler
         $this->refreshTokenRepository->save($refreshToken);
 
         $accessToken = $this->tokenEncoderDecoder->encode([
-            'id' => $refreshToken->getUserId()->value(),
+            'id' => $user->getId()->value(),
+            'token_version' => $user->getTokenVersion()->value(),
         ]);
 
         return new RenewUserAuthenticationResponse($accessToken, $newRefreshToken->value);

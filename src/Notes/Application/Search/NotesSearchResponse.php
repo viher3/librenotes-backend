@@ -7,6 +7,7 @@ namespace App\Notes\Application\Search;
 use App\Core\Application\Query\QueryResponse;
 use App\Notes\Domain\Model\Attachment;
 use App\Notes\Domain\Model\Folder;
+use App\Notes\Domain\Model\Link;
 use App\Notes\Domain\Model\Note;
 
 final class NotesSearchResponse implements QueryResponse
@@ -15,12 +16,14 @@ final class NotesSearchResponse implements QueryResponse
      * @param array{items: Note[], total: int} $notes
      * @param array{items: Folder[], total: int} $folders
      * @param array{items: Attachment[], total: int} $attachments
+     * @param array{items: Link[], total: int} $links
      */
     public function __construct(
         private readonly string $query,
         private readonly array $notes,
         private readonly array $folders,
-        private readonly array $attachments
+        private readonly array $attachments,
+        private readonly array $links
     ) {
     }
 
@@ -30,7 +33,8 @@ final class NotesSearchResponse implements QueryResponse
      *     data: array{
      *         notes: array{total: int, items: list<array<string, mixed>>},
      *         folders: array{total: int, items: list<array<string, mixed>>},
-     *         attachments: array{total: int, items: list<array<string, mixed>>}
+     *         attachments: array{total: int, items: list<array<string, mixed>>},
+     *         links: array{total: int, items: list<array<string, mixed>>}
      *     }
      * }
      */
@@ -77,6 +81,21 @@ final class NotesSearchResponse implements QueryResponse
                             'note_id' => $attachment->getNoteId()?->value(),
                         ],
                         $this->attachments['items']
+                    ),
+                ],
+                'links' => [
+                    'total' => $this->links['total'],
+                    'items' => array_map(
+                        static fn (Link $link) => [
+                            'id' => $link->getId()->value(),
+                            'title' => $link->getTitle()->value(),
+                            'icon' => $link->getIcon()?->value(),
+                            'url' => $link->getUrl()->value(),
+                            'folder_id' => $link->getFolderId()?->value(),
+                            'parent_note_id' => $link->getParentNoteId()?->value(),
+                            'updated_at' => $link->getUpdatedAt()->value()->format(DATE_ATOM),
+                        ],
+                        $this->links['items']
                     ),
                 ],
             ],
