@@ -195,4 +195,70 @@ class NoteAttachmentsTest extends WebTestCase
         $client->request('GET', '/attachments/' . $id . '/content', [], [], $intruder->authServer());
         $this->assertSame(404, $intruder->status());
     }
+    private const MISSING = '00000000-0000-4000-8000-000000000000';
+
+    public function testAFileMovesFromAFolderToANoteAndBack(): void
+    {
+        $api = $this->api();
+        $folder = $api->createFolder('Docs');
+        $note = $api->createNote('Spec');
+        $file = $api->upload('/folders/' . $folder . '/attachments');
+
+        $api->request('PATCH', '/attachments/' . $file['id'] . '/move', ['note_id' => $note]);
+        $this->assertSame(200, $api->status());
+        $moved = $api->request('GET', '/attachments/' . $file['id']);
+        $this->assertSame($note, $moved['note_id']);
+        $this->assertNull($moved['folder_id']);
+
+        $api->request('PATCH', '/attachments/' . $file['id'] . '/move', ['folder_id' => $folder]);
+        $this->assertSame(200, $api->status());
+        $back = $api->request('GET', '/attachments/' . $file['id']);
+        $this->assertSame($folder, $back['folder_id']);
+        $this->assertNull($back['note_id']);
+    }
+
+    public function testMovingAFileNeedsExactlyOneTarget(): void
+    {
+        $api = $this->api();
+        $folder = $api->createFolder('Docs');
+        $note = $api->createNote('Spec');
+        $file = $api->upload('/folders/' . $folder . '/attachments');
+
+        $body = $api->request('PATCH', '/attachments/' . $file['id'] . '/move', []);
+        $this->assertSame(422, $api->status());
+        $this->assertSame('attachment.invalid_location', $body['code']);
+
+        $api->request('PATCH', '/attachments/' . $file['id'] . '/move', ['folder_id' => $folder, 'note_id' => $note]);
+        $this->assertSame(422, $api->status());
+    }
+
+    public function testMovingAFileToAMissingTargetIsRejected(): void
+    {
+        $api = $this->api();
+        $folder = $api->createFolder('Docs');
+        $file = $api->upload('/folders/' . $folder . '/attachments');
+
+        $body = $api->request('PATCH', '/attachments/' . $file['id'] . '/move', ['folder_id' => self::MISSING]);
+        $this->assertSame(422, $api->status());
+        $this->assertSame('folder.not_found', $body['code']);
+
+        $body = $api->request('PATCH', '/attachments/' . $file['id'] . '/move', ['note_id' => self::MISSING]);
+        $this->assertSame(422, $api->status());
+        $this->assertSame('note.parent_not_found', $body['code']);
+    }
+
+    public function testATrashedOrMissingFileCannotBeMoved(): void
+    {
+        $api = $this->api();
+        $folder = $api->createFolder('Docs');
+        $other = $api->createFolder('Other');
+        $file = $api->upload('/folders/' . $folder . '/attachments');
+        $api->request('DELETE', '/attachments/' . $file['id']);
+
+        $api->request('PATCH', '/attachments/' . $file['id'] . '/move', ['folder_id' => $other]);
+        $this->assertSame(404, $api->status());
+
+        $api->request('PATCH', '/attachments/' . self::MISSING . '/move', ['folder_id' => $other]);
+        $this->assertSame(404, $api->status());
+    }
 }

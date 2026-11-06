@@ -530,6 +530,141 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiError'
 
+  /bulk/move:
+    post:
+      summary: Move many folders, notes, links and files to a folder, under a note, or to the top level
+      description: All or nothing - every item and the destination are validated before anything changes. Items inside another selected item travel with it; `count` is the number of top-level items affected. Up to 100 items.
+      tags:
+        - Bulk
+      security:
+        - Bearer: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkMoveRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkResult'
+        '400':
+          description: Invalid data (empty list, more than 100 items, unknown type)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: An item does not exist, is owned by another user or is in the trash (folder.not_found, note.not_found, link.not_found, attachment.not_found)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: Destination folder or parent note not found (folder.not_found, note.parent_not_found), a folder sent under a note (notes.invalid_location), a file sent to the top level (attachment.invalid_location), or an item that would end up inside itself (folder.cycle_detected, note.cycle_detected)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /bulk/trash:
+    post:
+      summary: Send many folders, notes, links and files to the trash
+      description: All or nothing - every item and the destination are validated before anything changes. Items inside another selected item travel with it; `count` is the number of top-level items affected. Up to 100 items.
+      tags:
+        - Bulk
+      security:
+        - Bearer: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkTrashRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkResult'
+        '400':
+          description: Invalid data (empty list, more than 100 items, unknown type)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: An item does not exist, is owned by another user or is in the trash (folder.not_found, note.not_found, link.not_found, attachment.not_found)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /attachments/{id}/move:
+    patch:
+      summary: Move a file to a folder or under a note (never the top level)
+      tags:
+        - Attachment
+      security:
+        - Bearer: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: Attachment ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MoveAttachmentRequest'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Not found (or owned by another user, or in the trash)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          description: Target folder or note not found (folder.not_found, note.parent_not_found), or no/both targets (attachment.invalid_location)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
   /attachments/{id}:
     get:
       summary: Get attachment metadata
