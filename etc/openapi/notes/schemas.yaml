@@ -64,6 +64,71 @@ components:
           nullable: true
           description: Place it under this note instead of in a folder (never both).
 
+    BulkItem:
+      type: object
+      required: [type, id]
+      properties:
+        type:
+          type: string
+          enum: [folder, note, link, attachment]
+        id:
+          type: string
+          format: uuid
+
+    BulkTrashRequest:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/BulkItem'
+
+    BulkMoveRequest:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/BulkItem'
+        folder_id:
+          type: string
+          format: uuid
+          nullable: true
+        parent_note_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: Place the items under this note instead of in a folder (never both). Send neither for the top level.
+
+    BulkResult:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            count:
+              type: integer
+              description: Top-level items affected (items inside other selected items are not counted).
+
+    MoveAttachmentRequest:
+      type: object
+      description: Exactly one of folder_id / note_id.
+      properties:
+        folder_id:
+          type: string
+          format: uuid
+          nullable: true
+        note_id:
+          type: string
+          format: uuid
+          nullable: true
+
     CreateNoteRequest:
       type: object
       properties:

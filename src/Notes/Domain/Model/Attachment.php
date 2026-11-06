@@ -60,6 +60,17 @@ class Attachment extends AggregateRoot
         return $this->ownerId->equals($ownerId);
     }
 
+    /** A file lives in a folder or under a note, never both (a note-bound file has no folder of its own). */
+    public function moveTo(?FolderId $folderId, ?NoteId $noteId): void
+    {
+        if (($folderId === null) === ($noteId === null)) {
+            throw new InvalidAttachmentLocation();
+        }
+
+        $this->folderId = $folderId;
+        $this->noteId = $noteId;
+    }
+
     public function moveToTrash(\DateTimeInterface $now): void
     {
         if ($this->deletedAt !== null) {

@@ -63,6 +63,11 @@ delete_attachment:
   methods: DELETE
   controller: App\Notes\Infrastructure\Ui\Controllers\DeleteAttachmentController
 
+move_attachment:
+  path: /attachments/{id}/move
+  methods: PATCH
+  controller: App\Notes\Infrastructure\Ui\Controllers\MoveAttachmentController
+
 attachment_detail:
   path: /attachments/{id}
   methods: GET
@@ -172,3 +177,13 @@ note_children:
   path: /notes/{id}/children
   methods: GET
   controller: App\Notes\Infrastructure\Ui\Controllers\NoteChildrenController
+
+bulk_move:
+  path: /bulk/move
+  methods: POST
+  controller: App\Notes\Infrastructure\Ui\Controllers\BulkMoveController
+
+bulk_trash:
+  path: /bulk/trash
+  methods: POST
+  controller: App\Notes\Infrastructure\Ui\Controllers\BulkTrashController
