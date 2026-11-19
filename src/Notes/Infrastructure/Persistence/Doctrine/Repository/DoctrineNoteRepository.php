@@ -9,10 +9,10 @@ use App\Notes\Domain\Model\Note;
 use App\Notes\Domain\Repository\NoteListCriteria;
 use App\Notes\Domain\Repository\NoteRepository;
 use App\Notes\Domain\ValueObject\FolderId;
+use App\Notes\Domain\ValueObject\NoteContent;
 use App\Notes\Domain\ValueObject\NoteId;
 use App\Notes\Domain\ValueObject\OwnerId;
 use Doctrine\DBAL\ArrayParameterType;
-use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -162,69 +162,36 @@ final class DoctrineNoteRepository extends DoctrineRepository implements NoteRep
 
     public function searchByTerm(string $term, OwnerId $ownerId, int $page, int $perPage): array
     {
-        $ids = $this->entityManager()->getConnection()->fetchFirstColumn(
-            <<<'SQL'
-                SELECT id
-                FROM note
-                WHERE owner_id = :ownerId
-                    AND deleted_at IS NULL
-                    AND MATCH(title, content) AGAINST(:term IN NATURAL LANGUAGE MODE)
-                ORDER BY MATCH(title, content) AGAINST(:term IN NATURAL LANGUAGE MODE) DESC
-                LIMIT :limit OFFSET :offset
-                SQL,
-            [
-                'ownerId' => $ownerId->value(),
-                'term' => $term,
-                'limit' => $perPage,
-                'offset' => ($page - 1) * $perPage,
-            ],
-            [
-                'ownerId' => ParameterType::STRING,
-                'term' => ParameterType::STRING,
-                'limit' => ParameterType::INTEGER,
-                'offset' => ParameterType::INTEGER,
-            ]
-        );
-
-        return $this->hydrateInOrder($ids);
+        return $this->searchByTermQueryBuilder($term, $ownerId)
+            ->setFirstResult(($page - 1) * $perPage)
+            ->setMaxResults($perPage)
+            ->getQuery()
+            ->getResult();
     }
 
     public function searchByTermCount(string $term, OwnerId $ownerId): int
     {
-        return (int) $this->entityManager()->getConnection()->fetchOne(
-            <<<'SQL'
-                SELECT COUNT(*)
-                FROM note
-                WHERE owner_id = :ownerId
-                    AND deleted_at IS NULL
-                    AND MATCH(title, content) AGAINST(:term IN NATURAL LANGUAGE MODE)
-                SQL,
-            [
-                'ownerId' => $ownerId->value(),
-                'term' => $term,
-            ]
-        );
+        return (int) $this->searchByTermQueryBuilder($term, $ownerId)
+            ->select('COUNT(n.id)')
+            ->resetDQLPart('orderBy')
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     /**
-     * @param string[] $ids
-     * @return Note[]
+     * Substring match on the title and, for notes that are not client-encrypted, on the content
+     * (ciphertext is meaningless to the server, so it is never matched).
      */
-    private function hydrateInOrder(array $ids): array
+    private function searchByTermQueryBuilder(string $term, OwnerId $ownerId): QueryBuilder
     {
-        if ($ids === []) {
-            return [];
-        }
-
-        $notesById = [];
-        foreach ($this->findBy(['id' => $ids]) as $note) {
-            $notesById[$note->getId()->value()] = $note;
-        }
-
-        return array_values(array_filter(array_map(
-            static fn (string $id) => $notesById[$id] ?? null,
-            $ids
-        )));
+        return $this->createQueryBuilder('n')
+            ->andWhere('n.ownerId = :ownerId')
+            ->andWhere('n.deletedAt IS NULL')
+            ->andWhere('n.title LIKE :term OR (n.content LIKE :term AND n.content NOT LIKE :encrypted)')
+            ->setParameter('ownerId', $ownerId->value())
+            ->setParameter('term', '%' . self::escapeLikeTerm($term) . '%')
+            ->setParameter('encrypted', NoteContent::ENCRYPTED_PREFIX . '%')
+            ->orderBy('n.updatedAt', 'desc');
     }
 
     private function byFolderQueryBuilder(?FolderId $folderId, OwnerId $ownerId): QueryBuilder
