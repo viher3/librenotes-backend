@@ -81,7 +81,7 @@ Tags are modelled as a value-object collection on the aggregate (`TagName[]`, no
 | ---------- | ------------------------------------ | ------------------------------------------------------ |
 | `note_tag` | `note_id` (36), `name` (50)          | PK `(note_id, name)`; index `(name)`; FK `note_id` → `note.id` ON DELETE CASCADE |
 
-Search support: `FULLTEXT` index on `note (title, content)` (MySQL 8 InnoDB, `ngram` parser is not required for es/en).
+Search support: substring (`LIKE '%term%'`) on `note.title` and `note.content` (content of client-encrypted notes is skipped). A legacy `FULLTEXT` index on `note (title, content)` still exists but is not used by search.
 
 `VALID_PARTIAL_UPDATE_FIELDS` becomes `title`, `content`, `pinned`, plus `tags` (full replacement of the set).
 
